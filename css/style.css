@@ -1,0 +1,843 @@
+/* =============================================
+   VARIÁVEIS CSS — tema claro (padrão)
+   Usei CSS variables aqui para facilitar na hora de mudar as
+   cores do tema claro/escuro — aprendi isso essa semana e
+   facilita muito não ter que trocar cor por cor
+   ============================================= */
+:root {
+    --bg-cor:        #f5f5f5;
+    --bg-card:       #ffffff;
+    --texto-cor:     #1a1a2e;
+    --texto-suave:   #555577;
+    --primaria:      #4361ee;
+    --primaria-hover:#3451d1;
+    --borda-cor:     #e0e0e0;
+    --sombra:        0 2px 12px rgba(0, 0, 0, 0.08);
+    --sombra-hover:  0 4px 20px rgba(67, 97, 238, 0.18);
+    --radius:        8px;
+    --transicao:     0.3s ease;
+    --fonte:         'Inter', sans-serif;
+}
+
+/* Variáveis do tema escuro — aplicadas quando o body tem a classe "dark-mode" */
+body.dark-mode {
+    --bg-cor:      #0f0f1a;
+    --bg-card:     #1a1a2e;
+    --texto-cor:   #e8e8f0;
+    --texto-suave: #9999bb;
+    --borda-cor:   #2d2d4e;
+    --sombra:      0 2px 12px rgba(0, 0, 0, 0.35);
+    --sombra-hover:0 4px 20px rgba(67, 97, 238, 0.30);
+}
+
+/* =============================================
+   RESET E BASE
+   ============================================= */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* scroll-behavior: smooth faz a página rolar suavemente ao clicar nas âncoras */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--fonte);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--texto-cor);
+    background-color: var(--bg-cor);
+    transition: background-color var(--transicao), color var(--transicao);
+}
+
+a {
+    color: var(--primaria);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+ul {
+    list-style: none;
+}
+
+/* =============================================
+   CONTAINER — centraliza o conteúdo
+   ============================================= */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* =============================================
+   HEADER E NAVEGAÇÃO
+   Fixo no topo com z-index alto para ficar
+   sempre visível sobre o conteúdo
+   ============================================= */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--borda-cor);
+    box-shadow: var(--sombra);
+    z-index: 1000;
+    transition: background-color var(--transicao), border-color var(--transicao);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+/* Logo — nome no canto esquerdo */
+.nav__logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--texto-cor);
+    text-decoration: none;
+    letter-spacing: -0.3px;
+    transition: color var(--transicao);
+}
+
+.nav__logo:hover {
+    color: var(--primaria);
+    text-decoration: none;
+}
+
+/* Lista de links do menu */
+.nav__lista {
+    display: flex;
+    gap: 8px;
+}
+
+.nav__link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--texto-suave);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    transition: color var(--transicao), background-color var(--transicao);
+}
+
+.nav__link:hover {
+    color: var(--primaria);
+    background-color: rgba(67, 97, 238, 0.08);
+    text-decoration: none;
+}
+
+/* Classe "ativo" adicionada pelo JavaScript ao fazer scroll */
+.nav__link.ativo {
+    color: var(--primaria);
+    background-color: rgba(67, 97, 238, 0.12);
+    font-weight: 600;
+}
+
+/* Controles da nav: tema + hamburguer */
+.nav__controles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Botão de tema claro/escuro */
+.btn-tema {
+    background: none;
+    border: 1px solid var(--borda-cor);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transicao), border-color var(--transicao), transform var(--transicao);
+    color: var(--texto-cor);
+}
+
+.btn-tema:hover {
+    background-color: rgba(67, 97, 238, 0.1);
+    border-color: var(--primaria);
+    transform: scale(1.1);
+}
+
+/* Botão hamburguer — fica escondido no desktop */
+.btn-hamburguer {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 26px;
+    height: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* As 3 linhas do hamburguer */
+.btn-hamburguer span {
+    display: block;
+    height: 2px;
+    background-color: var(--texto-cor);
+    border-radius: 2px;
+    transition: transform var(--transicao), opacity var(--transicao);
+}
+
+/* Animação do hamburguer quando o menu está aberto */
+.btn-hamburguer.aberto span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.btn-hamburguer.aberto span:nth-child(2) {
+    opacity: 0;
+}
+.btn-hamburguer.aberto span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* =============================================
+   SEÇÕES — estrutura geral
+   ============================================= */
+.secao {
+    /* padding-top alto para compensar o header fixo de 64px */
+    padding: 100px 0 70px;
+}
+
+/* Fundo levemente diferente para alternar visual entre seções */
+.secao--cinza {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+body.dark-mode .secao--cinza {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.secao__titulo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--texto-cor);
+    margin-bottom: 10px;
+    position: relative;
+    padding-bottom: 14px;
+}
+
+/* Linha decorativa abaixo dos títulos de seção */
+.secao__titulo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 48px;
+    height: 3px;
+    background-color: var(--primaria);
+    border-radius: 2px;
+}
+
+.secao__subtitulo {
+    color: var(--texto-suave);
+    margin-bottom: 40px;
+    margin-top: 8px;
+}
+
+/* =============================================
+   SEÇÃO: SOBRE MIM
+   ============================================= */
+.sobre__wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 60px;
+}
+
+/* Foto circular de perfil */
+.sobre__foto-wrapper {
+    flex-shrink: 0;
+}
+
+.sobre__foto {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 4px solid var(--primaria);
+    box-shadow: var(--sombra);
+}
+
+.sobre__nome {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--texto-cor);
+}
+
+.sobre__headline {
+    font-size: 0.95rem;
+    color: var(--primaria);
+    font-weight: 500;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.sobre__bio {
+    color: var(--texto-suave);
+    margin-bottom: 12px;
+    font-size: 0.97rem;
+}
+
+/* =============================================
+   HABILIDADES — grid de badges
+   Flexbox com wrap para quebrar linha automaticamente
+   ============================================= */
+.habilidades {
+    margin-top: 40px;
+}
+
+.habilidades .secao__titulo {
+    font-size: 1.3rem;
+    margin-bottom: 24px;
+}
+
+/* Flex com gap para espaçar os cards de habilidades */
+.habilidades__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.habilidade__badge {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borda-cor);
+    color: var(--texto-cor);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color var(--transicao), border-color var(--transicao), color var(--transicao), transform var(--transicao);
+    cursor: default;
+}
+
+.habilidade__badge:hover {
+    background-color: var(--primaria);
+    color: #fff;
+    border-color: var(--primaria);
+    transform: translateY(-2px);
+}
+
+/* =============================================
+   SEÇÃO: FORMAÇÃO — cards
+   ============================================= */
+.formacao__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+/* Card reutilizável — usado na formação */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borda-cor);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--sombra);
+    transition: box-shadow var(--transicao), transform var(--transicao), background-color var(--transicao);
+}
+
+.card:hover {
+    box-shadow: var(--sombra-hover);
+    transform: translateY(-3px);
+}
+
+.card__icone {
+    font-size: 2rem;
+    margin-bottom: 14px;
+}
+
+.card__titulo {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--texto-cor);
+    margin-bottom: 6px;
+}
+
+.card__instituicao {
+    color: var(--primaria);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.card__periodo {
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card__desc {
+    color: var(--texto-suave);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+/* Badges de status (em andamento / concluído) */
+.badge-status {
+    background-color: rgba(67, 97, 238, 0.12);
+    color: var(--primaria);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-status--concluido {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+}
+
+body.dark-mode .badge-status--concluido {
+    color: #4ade80;
+}
+
+/* Linha de idioma */
+.idioma {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borda-cor);
+}
+
+.idioma:last-of-type {
+    border-bottom: none;
+}
+
+.idioma__nome {
+    font-weight: 600;
+    color: var(--texto-cor);
+}
+
+.idioma__nivel {
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+    background-color: rgba(67, 97, 238, 0.08);
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+/* =============================================
+   SEÇÃO: PORTFÓLIO — cards de projetos
+   ============================================= */
+.projetos__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+    margin-top: 40px;
+}
+
+.projeto__card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borda-cor);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--sombra);
+    transition: box-shadow var(--transicao), transform var(--transicao), background-color var(--transicao);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.projeto__card:hover {
+    box-shadow: var(--sombra-hover);
+    transform: translateY(-4px);
+}
+
+/* Card de "projetos futuros" com visual diferenciado */
+.projeto__card--futuro {
+    border: 2px dashed var(--borda-cor);
+    background-color: transparent;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+.projeto__header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.projeto__icone {
+    font-size: 2rem;
+}
+
+.projeto__icone--grande {
+    font-size: 3rem;
+}
+
+.projeto__titulo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--texto-cor);
+}
+
+.projeto__tipo {
+    font-size: 0.82rem;
+    color: var(--primaria);
+    font-weight: 500;
+}
+
+.projeto__desc {
+    color: var(--texto-suave);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+/* Tags de tecnologias usadas no projeto */
+.projeto__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.projeto__tag {
+    font-size: 0.78rem;
+    font-weight: 600;
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primaria);
+    padding: 3px 10px;
+    border-radius: 4px;
+}
+
+.projeto__botoes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* =============================================
+   BOTÕES
+   ============================================= */
+.btn {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: background-color var(--transicao), color var(--transicao),
+                border-color var(--transicao), transform var(--transicao);
+    text-align: center;
+}
+
+.btn:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn--primario {
+    background-color: var(--primaria);
+    color: #fff;
+    border-color: var(--primaria);
+}
+
+.btn--primario:hover {
+    background-color: var(--primaria-hover);
+    border-color: var(--primaria-hover);
+    color: #fff;
+}
+
+.btn--secundario {
+    background-color: transparent;
+    color: var(--primaria);
+    border-color: var(--primaria);
+}
+
+.btn--secundario:hover {
+    background-color: var(--primaria);
+    color: #fff;
+}
+
+.btn--github {
+    background-color: #24292e;
+    color: #fff;
+    border-color: #24292e;
+    margin-top: 8px;
+}
+
+.btn--github:hover {
+    background-color: #3d444b;
+    border-color: #3d444b;
+    color: #fff;
+}
+
+body.dark-mode .btn--github {
+    background-color: #4a5568;
+    border-color: #4a5568;
+}
+
+.btn--submit {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    margin-top: 8px;
+}
+
+/* =============================================
+   SEÇÃO: CONTATO — formulário
+   ============================================= */
+.formulario {
+    max-width: 600px;
+    margin: 40px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo__label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--texto-cor);
+}
+
+.campo__input {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borda-cor);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-family: var(--fonte);
+    color: var(--texto-cor);
+    transition: border-color var(--transicao), box-shadow var(--transicao), background-color var(--transicao);
+    width: 100%;
+}
+
+.campo__input:focus {
+    outline: none;
+    border-color: var(--primaria);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+}
+
+/* Quando o JS marca o campo como inválido */
+.campo__input.campo--invalido {
+    border-color: #e53e3e;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+.campo__textarea {
+    resize: vertical;
+    min-height: 130px;
+}
+
+/* Mensagem de erro do campo — fica vermelha e pequena */
+.campo__erro {
+    font-size: 0.82rem;
+    color: #e53e3e;
+    font-weight: 500;
+    min-height: 18px;
+    display: block;
+}
+
+/* Div de sucesso após envio válido — escondida por padrão */
+.form__sucesso {
+    display: none;
+    background-color: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #16a34a;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+body.dark-mode .form__sucesso {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.35);
+    background-color: rgba(74, 222, 128, 0.08);
+}
+
+/* Quando o JS mostra a mensagem de sucesso */
+.form__sucesso.visivel {
+    display: block;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footer {
+    background-color: var(--bg-card);
+    border-top: 1px solid var(--borda-cor);
+    padding: 28px 0;
+    transition: background-color var(--transicao), border-color var(--transicao);
+}
+
+.footer__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.footer__copy {
+    color: var(--texto-suave);
+    font-size: 0.9rem;
+}
+
+.footer__links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer__link {
+    color: var(--texto-suave);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transicao);
+}
+
+.footer__link:hover {
+    color: var(--primaria);
+    text-decoration: none;
+}
+
+/* =============================================
+   RESPONSIVIDADE — media queries manuais
+   Aprendi que é importante sempre escrever essas
+   regras do maior pro menor (desktop first aqui)
+   ============================================= */
+
+/* Tablet — até 900px */
+@media (max-width: 900px) {
+    .sobre__wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 28px;
+    }
+
+    .sobre__headline {
+        font-size: 0.9rem;
+    }
+
+    .habilidades__grid {
+        justify-content: center;
+    }
+
+    /* A linha decorativa fica centralizada quando o texto está centralizado */
+    .sobre__wrapper .secao__titulo::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* Mobile — até 700px */
+@media (max-width: 700px) {
+
+    /* No mobile o menu vira uma lista vertical que aparece/desaparece */
+    .nav__lista {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        width: 100%;
+        background-color: var(--bg-card);
+        border-bottom: 1px solid var(--borda-cor);
+        padding: 12px 0;
+        box-shadow: var(--sombra);
+    }
+
+    /* Classe adicionada pelo JS quando clica no hamburguer */
+    .nav__lista.menu-aberto {
+        display: flex;
+    }
+
+    .nav__link {
+        padding: 12px 24px;
+        border-radius: 0;
+        border-bottom: 1px solid var(--borda-cor);
+    }
+
+    .nav__link:last-child {
+        border-bottom: none;
+    }
+
+    /* Mostra o botão hamburguer no mobile */
+    .btn-hamburguer {
+        display: flex;
+    }
+
+    .secao {
+        padding: 90px 0 50px;
+    }
+
+    .secao__titulo {
+        font-size: 1.5rem;
+    }
+
+    .sobre__foto {
+        width: 140px;
+        height: 140px;
+    }
+
+    .sobre__nome {
+        font-size: 1.6rem;
+    }
+
+    .formacao__grid,
+    .projetos__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer__wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Mobile pequeno — até 420px */
+@media (max-width: 420px) {
+    .nav__logo {
+        font-size: 0.95rem;
+    }
+
+    .btn--primario,
+    .btn--secundario {
+        width: 100%;
+        text-align: center;
+    }
+
+    .projeto__botoes {
+        flex-direction: column;
+    }
+}

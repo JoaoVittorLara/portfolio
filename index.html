@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>João Vittor Lara — Portfólio</title>
+
+    <!-- Google Fonts — Inter é uma fonte moderna muito usada em sites de tecnologia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- =============================================
+         HEADER / NAVEGAÇÃO PRINCIPAL
+         Fixo no topo — visível em todas as seções
+         ============================================= -->
+    <header class="header" id="topo">
+        <nav class="nav container">
+
+            <!-- Logo com o nome -->
+            <a href="#sobre" class="nav__logo">João Vittor Lara</a>
+
+            <!-- Links de navegação — usam âncoras para single page -->
+            <ul class="nav__lista" id="navLista">
+                <li><a href="#sobre"     class="nav__link ativo" data-secao="sobre">Sobre mim</a></li>
+                <li><a href="#formacao"  class="nav__link" data-secao="formacao">Formação</a></li>
+                <li><a href="#portfolio" class="nav__link" data-secao="portfolio">Portfólio</a></li>
+                <li><a href="#contato"   class="nav__link" data-secao="contato">Contato</a></li>
+            </ul>
+
+            <!-- Controles do lado direito: botão de tema + hamburguer -->
+            <div class="nav__controles">
+                <!-- Botão dark/light mode — o ícone muda via JavaScript -->
+                <button class="btn-tema" id="btnTema" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema">
+                    🌙
+                </button>
+
+                <!-- Botão hamburguer — aparece só no mobile -->
+                <button class="btn-hamburguer" id="btnHamburguer" onclick="toggleMenu()" aria-label="Abrir menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- =============================================
+         SEÇÃO: SOBRE MIM
+         Foto, headline, texto de apresentação
+         e grid de habilidades
+         ============================================= -->
+    <section class="secao" id="sobre">
+        <div class="container">
+
+            <div class="sobre__wrapper">
+
+                <!-- Foto de perfil circular -->
+                <div class="sobre__foto-wrapper">
+                    <!-- TODO: substitua src pela URL da sua foto real (pode ser do GitHub avatars) -->
+                    <img
+                        src="img/profile.jpg"
+                        alt="Foto de perfil de João Vittor Lara"
+                        class="sobre__foto"
+                        onerror="this.src='https://via.placeholder.com/200x200/4361ee/ffffff?text=JVL'"
+                    >
+                </div>
+
+                <!-- Texto de apresentação -->
+                <div class="sobre__texto">
+                    <h1 class="sobre__nome">João Vittor Lara</h1>
+                    <p class="sobre__headline">
+                        Desenvolvedor Front-End em Formação | HTML · CSS · JavaScript |
+                        Estudante de Ciência da Computação | Aberto a Trabalho Freelancer e Estágios Remotos
+                    </p>
+
+                    <p class="sobre__bio">
+                        Estudante de Ciência da Computação pela Uninter (conclusão prevista em 2028),
+                        com foco em desenvolvimento front-end. Tenho experiência prática na criação de
+                        landing pages responsivas com HTML5, CSS3 e JavaScript, incluindo um projeto
+                        real publicado e ativo — uma página de vendas com deploy em produção via
+                        Cloudflare Pages.
+                    </p>
+                    <p class="sobre__bio">
+                        Trabalho com ferramentas de IA generativa como apoio no desenvolvimento, o que
+                        acelera minha produção e me mantém atualizado com práticas modernas do mercado.
+                        Complemento meu perfil técnico com domínio do Pacote Office (Excel, Word,
+                        PowerPoint), permitindo atuar também em contextos que exigem organização de
+                        dados e documentação.
+                    </p>
+                    <p class="sobre__bio">
+                        Busco oportunidades de freelance remoto para projetos de front-end e back-end | sites,
+                        landing pages e interfaces web. Aberto a conversar.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Seção de habilidades — uso de grid para os badges -->
+            <div class="habilidades">
+                <h2 class="secao__titulo">Habilidades</h2>
+
+                <!-- Grid com as badges de habilidades — aprendi grid essa semana,
+                     funciona bem aqui para distribuir os itens automaticamente -->
+                <div class="habilidades__grid">
+                    <span class="habilidade__badge">HTML5</span>
+                    <span class="habilidade__badge">CSS3</span>
+                    <span class="habilidade__badge">JavaScript</span>
+                    <span class="habilidade__badge">Desenvolvimento Front-End</span>
+                    <span class="habilidade__badge">Responsive Web Design</span>
+                    <span class="habilidade__badge">Cloudflare Pages</span>
+                    <span class="habilidade__badge">Python (básico)</span>
+                    <span class="habilidade__badge">Microsoft Excel</span>
+                    <span class="habilidade__badge">Microsoft Office</span>
+                    <span class="habilidade__badge">Ferramentas de IA Generativas Para Negócios</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =============================================
+         SEÇÃO: FORMAÇÃO
+         Educação, certificações, idiomas e cursos
+         ============================================= -->
+    <section class="secao secao--cinza" id="formacao">
+        <div class="container">
+
+            <h2 class="secao__titulo">Formação</h2>
+
+            <!-- Grid para os cards de formação -->
+            <div class="formacao__grid">
+
+                <!-- Card: Formação Acadêmica -->
+                <div class="card">
+                    <div class="card__icone">🎓</div>
+                    <h3 class="card__titulo">Bacharelado em Ciência da Computação</h3>
+                    <p class="card__instituicao">Centro Universitário Internacional — Uninter</p>
+                    <p class="card__periodo">2025 – 2028 <span class="badge-status">Em andamento</span></p>
+                    <p class="card__desc">
+                        Curso de graduação com foco em fundamentos de programação, estruturas de
+                        dados, redes de computadores e desenvolvimento web. Disciplina atual:
+                        Fundamentos da Programação Web.
+                    </p>
+                </div>
+
+                <!-- Card: Certificação -->
+                <div class="card">
+                    <div class="card__icone">📜</div>
+                    <h3 class="card__titulo">Operador de Microcomputador</h3>
+                    <p class="card__instituicao">Pacote Office (Excel, Word, PowerPoint)</p>
+                    <p class="card__periodo">2021 <span class="badge-status badge-status--concluido">Concluído</span></p>
+                    <p class="card__desc">
+                        Certificação em operação de microcomputadores com foco nas principais
+                        ferramentas do Pacote Microsoft Office: formatação avançada no Word,
+                        planilhas e fórmulas no Excel, e apresentações no PowerPoint.
+                    </p>
+                </div>
+
+                <!-- Card: Idiomas -->
+                <div class="card">
+                    <div class="card__icone">🌐</div>
+                    <h3 class="card__titulo">Idiomas</h3>
+                    <div class="idioma">
+                        <span class="idioma__nome">Português</span>
+                        <span class="idioma__nivel">Nativo</span>
+                    </div>
+                    <div class="idioma">
+                        <span class="idioma__nome">Inglês</span>
+                        <span class="idioma__nivel">Básico / Intermediário</span>
+                    </div>
+                    <p class="card__desc" style="margin-top: 12px;">
+                        Capacidade de leitura de documentação técnica em inglês —
+                        essencial para acompanhar tutoriais, fóruns e documentações
+                        de tecnologias como MDN e Stack Overflow.
+                    </p>
+                </div>
+
+                <!-- Card: Cursos Complementares -->
+                <div class="card">
+                    <div class="card__icone">💻</div>
+                    <h3 class="card__titulo">Cursos Complementares</h3>
+                    <p class="card__desc">
+                        <!-- TODO: adicione cursos online que você fez (ex: Curso em Vídeo, DIO, Udemy, Alura...) -->
+                        Aprendizado contínuo em plataformas online — foco em desenvolvimento
+                        web front-end e inteligência artificial aplicada.
+                        <br><br>
+                        <em style="opacity: 0.7;">Mais cursos em breve à medida que avanço na graduação.</em>
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =============================================
+         SEÇÃO: PORTFÓLIO
+         Projetos realizados com links e tecnologias
+         ============================================= -->
+    <section class="secao" id="portfolio">
+        <div class="container">
+
+            <h2 class="secao__titulo">Portfólio</h2>
+            <p class="secao__subtitulo">Projetos desenvolvidos com código real e publicados na web</p>
+
+            <!-- Grid dos cards de projetos -->
+            <div class="projetos__grid">
+
+                <!-- Card: Lufay Receitas -->
+                <div class="projeto__card">
+                    <div class="projeto__header">
+                        <div class="projeto__icone">🍽️</div>
+                        <div>
+                            <h3 class="projeto__titulo">Lufay Receitas</h3>
+                            <p class="projeto__tipo">Projeto Freelance · 2024–2025</p>
+                        </div>
+                    </div>
+
+                    <p class="projeto__desc">
+                        Landing page de vendas para um e-book digital de receitas. Desenvolvimento
+                        completo desde a estrutura HTML até o deploy em produção. Página responsiva
+                        com seções de proposta de valor, depoimentos, FAQ e integração com
+                        plataforma de pagamento (Cakto).
+                    </p>
+
+                    <!-- Tags das tecnologias usadas no projeto -->
+                    <div class="projeto__tags">
+                        <span class="projeto__tag">HTML5</span>
+                        <span class="projeto__tag">CSS3</span>
+                        <span class="projeto__tag">JavaScript</span>
+                        <span class="projeto__tag">Cloudflare Pages</span>
+                    </div>
+
+                    <!-- Botões de ação -->
+                    <div class="projeto__botoes">
+                        <a href="https://lufayreceitas.pages.dev/" class="btn btn--primario" target="_blank" rel="noopener">
+                            Ver projeto ↗
+                        </a>
+                        <a href="https://github.com/JoaoVittorLara/lufay-receitas" class="btn btn--secundario" target="_blank" rel="noopener">
+                            Ver código
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card: Projetos futuros / chamada para o GitHub -->
+                <div class="projeto__card projeto__card--futuro">
+                    <div class="projeto__icone projeto__icone--grande">🚀</div>
+                    <h3 class="projeto__titulo">Mais projetos em breve</h3>
+                    <p class="projeto__desc">
+                        Acompanhe meu GitHub para ver os próximos projetos à medida que
+                        avanço na graduação e nos estudos de front-end.
+                    </p>
+                    <a href="https://github.com/JoaoVittorLara" class="btn btn--github" target="_blank" rel="noopener">
+                        Acessar meu GitHub ↗
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =============================================
+         SEÇÃO: CONTATO
+         Formulário com validação em JavaScript
+         ============================================= -->
+    <section class="secao secao--cinza" id="contato">
+        <div class="container">
+
+            <h2 class="secao__titulo">Contato</h2>
+            <p class="secao__subtitulo">
+                Tem um projeto em mente? Me manda uma mensagem — responderei em breve.
+            </p>
+
+            <!-- Formulário de contato — validação feita no script.js -->
+            <form class="formulario" id="formContato" onsubmit="validateForm(event)" novalidate>
+
+                <!-- Campo: Nome -->
+                <div class="campo">
+                    <label for="nome" class="campo__label">Nome</label>
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        class="campo__input"
+                        placeholder="Seu nome completo"
+                        autocomplete="name"
+                    >
+                    <!-- Div onde aparece a mensagem de erro — fica vazia até o JS escrever nela -->
+                    <span class="campo__erro" id="erroNome"></span>
+                </div>
+
+                <!-- Campo: E-mail -->
+                <div class="campo">
+                    <label for="email" class="campo__label">E-mail</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="campo__input"
+                        placeholder="seu@email.com"
+                        autocomplete="email"
+                    >
+                    <span class="campo__erro" id="erroEmail"></span>
+                </div>
+
+                <!-- Campo: Mensagem -->
+                <div class="campo">
+                    <label for="mensagem" class="campo__label">Mensagem</label>
+                    <textarea
+                        id="mensagem"
+                        name="mensagem"
+                        class="campo__input campo__textarea"
+                        placeholder="Descreva seu projeto ou dúvida..."
+                        rows="5"
+                    ></textarea>
+                    <span class="campo__erro" id="erroMensagem"></span>
+                </div>
+
+                <button type="submit" class="btn btn--primario btn--submit">
+                    Enviar mensagem
+                </button>
+
+                <!-- Mensagem de sucesso — aparece após envio válido (display: none por padrão) -->
+                <div class="form__sucesso" id="formSucesso">
+                    ✅ Mensagem enviada com sucesso! Entrarei em contato em breve.
+                </div>
+
+            </form>
+
+        </div>
+    </section>
+
+    <!-- =============================================
+         FOOTER
+         ============================================= -->
+    <footer class="footer">
+        <div class="container footer__wrapper">
+            <p class="footer__copy">Desenvolvido por João Vittor · 2026</p>
+            <div class="footer__links">
+                <a href="https://github.com/JoaoVittorLara" class="footer__link" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://www.linkedin.com/in/joão-vittor-7b445631b/" class="footer__link" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
