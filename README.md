@@ -35,8 +35,8 @@ joao-vittor-portfolio/
 
 ## Deploy
 
-<!-- TODO: adicione o link do GitHub Pages após publicar -->
-🔗 [Ver site publicado](#)
+
+🔗 [Ver site publicado](https://joaovittorlara.github.io/portfolio/)
 
 ## Projetos no portfólio
 
