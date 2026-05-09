@@ -41,8 +41,9 @@ joao-vittor-portfolio/
 ## Projetos no portfólio
 
 - **Lufay Receitas** — Landing page de vendas para e-book digital
-  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jo%C3%A3o-vittor-7b445631b/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/JoaoVittorLara)
+  - 🌐 [Ver projeto](https://lufayreceitas.pages.dev/)
+  - 💻 [Ver código](https://github.com/JoaoVittorLara/lufay-receitas)
+
 
 ## Links
 
