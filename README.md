@@ -1,14 +1,14 @@
-# Portfólio — João Vittor Lara
+# Portfólio | João Vittor Lara
 
 Portfólio pessoal desenvolvido como atividade prática da disciplina
-**Fundamentos da Programação Web** — Uninter (2025).
+**Fundamentos da Programação Web** | Uninter (2026).
 
 ## Tecnologias
 
 - HTML5 (estrutura semântica com `<!DOCTYPE html>`)
 - CSS3 puro (sem frameworks — variáveis CSS, Flexbox, Grid, media queries)
-- JavaScript puro — vanilla JS (sem bibliotecas)
-- Google Fonts — [Inter](https://fonts.google.com/specimen/Inter)
+- JavaScript puro | vanilla JS (sem bibliotecas)
+- Google Fonts: [Inter](https://fonts.google.com/specimen/Inter)
 
 ## Funcionalidades
 
@@ -16,7 +16,7 @@ Portfólio pessoal desenvolvido como atividade prática da disciplina
 - Dark / Light mode com persistência via `localStorage`
 - Menu responsivo com botão hamburguer (JavaScript)
 - Formulário de contato com validação JavaScript (sem `alert()`)
-- Layout responsivo — mobile, tablet e desktop
+- Layout responsivo: mobile, tablet e desktop
 - Destaque automático do link do menu conforme a seção visível (scroll)
 
 ## Estrutura de arquivos
@@ -40,7 +40,7 @@ joao-vittor-portfolio/
 
 ## Projetos no portfólio
 
-- **Lufay Receitas** — Landing page de vendas para e-book digital
+- **Lufay Receitas** | Landing page de vendas para e-book digital
   - 🌐 [Ver projeto](https://lufayreceitas.pages.dev/)
   - 💻 [Ver código](https://github.com/JoaoVittorLara/lufay-receitas)
 
