@@ -6,7 +6,7 @@ Portfólio pessoal desenvolvido como atividade prática da disciplina
 ## Tecnologias
 
 - HTML5 (estrutura semântica com `<!DOCTYPE html>`)
-- CSS3 puro (sem frameworks — variáveis CSS, Flexbox, Grid, media queries)
+- CSS3 puro (sem frameworks: variáveis CSS, Flexbox, Grid, media queries)
 - JavaScript puro | vanilla JS (sem bibliotecas)
 - Google Fonts: [Inter](https://fonts.google.com/specimen/Inter)
 
