@@ -1,0 +1,89 @@
+---
+/*
+  Rolagem com inércia pela Lenis (cerca de 5,4 KB gzip), a única biblioteca de
+  JavaScript de terceiro do site.
+
+  - Suaviza roda do mouse e trackpad. No toque, `syncTouch` fica desligado: o
+    celular mantém a inércia nativa do sistema.
+  - Teclado continua nativo; a Lenis só acompanha a posição.
+  - Com `prefers-reduced-motion`, a instância nem é criada.
+
+  Âncoras (`#contato`, `#projetos`) são tratadas aqui, e não pela opção
+  `anchors` da Lenis, por causa do ClientRouter: a Lenis não chama
+  `preventDefault`, e o ClientRouter faz um salto nativo em link para a mesma
+  página; os dois venceriam a animação. O clique é interceptado na fase de
+  captura, e o que o salto nativo faria é refeito à mão: o `#` na URL
+  (`replaceState`, para não criar entrada no histórico) e o foco na seção, para
+  o Tab seguinte continuar dali.
+*/
+---
+
+<script>
+  import Lenis from 'lenis';
+
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let lenis: Lenis | undefined;
+
+  const ligar = () => {
+    if (lenis || calmo.matches) return;
+    lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.1,
+      smoothWheel: true,
+      syncTouch: false,
+    });
+  };
+
+  const desligar = () => {
+    lenis?.destroy();
+    lenis = undefined;
+  };
+
+  // O foco vai para a seção, mas ela não é um controle: sem contorno.
+  const focar = (alvo: HTMLElement) => {
+    if (!alvo.hasAttribute('tabindex')) alvo.setAttribute('tabindex', '-1');
+    alvo.dataset.focoAncora = '';
+    alvo.focus({ preventScroll: true });
+  };
+
+  // Capture, para rodar antes do listener do ClientRouter no mesmo `document`.
+  document.addEventListener(
+    'click',
+    (ev) => {
+      if (!lenis || ev.defaultPrevented || ev.button !== 0) return;
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+
+      const link = (ev.target as Element | null)?.closest?.('a[href]');
+      if (!(link instanceof HTMLAnchorElement)) return;
+      // O "Pular para o conteúdo" precisa do salto e do foco nativos.
+      if (link.classList.contains('pular')) return;
+      if (link.target && link.target !== '_self') return;
+
+      const url = new URL(link.href);
+      const mesmaPagina =
+        url.origin === location.origin &&
+        url.pathname === location.pathname &&
+        url.search === location.search;
+      if (!mesmaPagina || url.hash.length < 2) return;
+
+      const alvo = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+      if (!alvo) return;
+
+      ev.preventDefault();
+      lenis.scrollTo(alvo, { duration: 1.4 });
+      history.replaceState(history.state, '', url.hash);
+      focar(alvo);
+    },
+    true,
+  );
+
+  /*
+    Cria em `astro:page-load` (que também dispara na primeira carga) e destrói
+    antes da troca de página: a Lenis guarda as medidas da página que saiu.
+  */
+  document.addEventListener('astro:page-load', ligar);
+  document.addEventListener('astro:before-swap', desligar);
+
+  // Quem liga "reduzir movimento" no meio da visita perde a inércia na hora.
+  calmo.addEventListener('change', () => (calmo.matches ? desligar() : ligar()));
+</script>

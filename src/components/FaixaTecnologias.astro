@@ -1,0 +1,330 @@
+---
+import { TECNOLOGIAS } from '../consts';
+
+/*
+  Faixa de tecnologias: logo numa cor só mais o nome, passando devagar.
+
+  Os logos (base: logos.lndev.me) foram convertidos para uma cor e são
+  servidos pelo próprio site. Os que só existiam coloridos foram redesenhados
+  (letras vazadas com `evenodd`; no Vite, um contorno separa o raio do V).
+  Nenhum logo usa `id`, então a cópia que fecha o loop não duplica
+  identificador.
+
+  Acessibilidade de movimento automático (WCAG 2.2.2):
+  - Sem JavaScript ou com movimento reduzido, a lista fica parada e quebra
+    linha.
+  - Com JavaScript, a própria faixa é o controle, sem botão visível: o mouse
+    desacelera até parar, um toque pausa e outro retoma, e o Tab para a faixa
+    (Enter ou Espaço alternam a pausa).
+  - O botão de controle tem `pointer-events: none`: mouse e toque passam para o
+    texto, que continua selecionável, e o botão segue no Tab. Clique de mouse
+    no conteúdo nunca alterna a pausa, para selecionar texto não travar a
+    faixa.
+  - A lista fica fora do botão (conteúdo dentro de botão vira texto corrido
+    para o leitor de tela), e a cópia do loop tem aria-hidden e inert: cada
+    nome é lido uma vez.
+*/
+const logos = import.meta.glob<string>('../assets/logos/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const logoDe = (id: string) => logos[`../assets/logos/${id}.svg`] ?? '';
+---
+
+<section class="faixa veu" aria-labelledby="faixa-titulo" data-faixa>
+  <div class="casca" data-revela>
+    <h2 id="faixa-titulo">Ferramentas que uso</h2>
+  </div>
+
+  <div class="palco" data-revela style="--atraso: 100ms">
+    <div class="trilho">
+      <div class="rolo" data-rolo>
+        <ul class="lista" role="list">
+          {
+            TECNOLOGIAS.map((t) => (
+              <li>
+                <Fragment set:html={logoDe(t.logo)} />
+                <span>{t.nome}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="controle"
+      aria-pressed="false"
+      aria-label="Pausar a faixa de tecnologias"
+      hidden
+      data-controle></button>
+  </div>
+</section>
+
+<style>
+  /*
+    Mesmo véu das seções vizinhas, para o fundo ser contínuo. O contraste dos
+    nomes é garantido pela máscara do trilho (abaixo), que só deixa um nome
+    visível dentro da coluna de véu mais fechado.
+  */
+  .faixa {
+    --vao: var(--sp-xl);
+    /* Sem declarar, cairia no 0,94 padrão do .veu e viraria uma banda escura. */
+    --veu: 0.72;
+    padding-block: var(--sp-xl);
+  }
+
+  h2 {
+    font-size: var(--step-1);
+  }
+
+  .palco {
+    position: relative;
+    margin-top: var(--sp-m);
+  }
+
+  /* Parada, que é o estado sem JavaScript: lista que quebra linha, alinhada
+     com a casca do resto da página. */
+  .trilho {
+    max-width: 62rem;
+    margin-inline: auto;
+    padding: var(--sp-s) var(--sp-m);
+  }
+
+  .lista {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-m) var(--sp-l);
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .lista :global(svg) {
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--ink-muted);
+  }
+
+  /* O contorno que separa o raio do V no logo do Vite. Na cor do fundo da
+     faixa, que é a superfície, ele parece um vão. */
+  .lista :global(.recorte) {
+    stroke: var(--surface);
+  }
+
+  @media (min-width: 40rem) {
+    .trilho {
+      padding-inline: var(--sp-xl);
+    }
+  }
+
+  /*
+    Andando: a faixa vai de ponta a ponta, e as bordas somem num degradê. O
+    degradê termina junto com a coluna de 68rem do véu, porque fora dela o véu
+    é mais aberto e o nome não teria contraste suficiente. O `max()` vale para
+    o celular, onde a coluna é maior que a tela.
+  */
+  .anda .trilho {
+    --fim: max(1.5rem, calc(50% - 34rem));
+    --cheio: max(4.5rem, calc(50% - 28rem));
+    max-width: none;
+    padding-inline: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent var(--fim),
+      #000 var(--cheio),
+      #000 calc(100% - var(--cheio)),
+      transparent calc(100% - var(--fim))
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent var(--fim),
+      #000 var(--cheio),
+      #000 calc(100% - var(--cheio)),
+      transparent calc(100% - var(--fim))
+    );
+  }
+
+  .anda .rolo {
+    display: flex;
+    width: max-content;
+    animation: rolar var(--duracao, 40s) linear infinite;
+  }
+
+  /* O vão depois do último item é o mesmo que entre os itens. Sem ele, a
+     emenda entre a lista e a cópia apareceria. */
+  .anda .lista {
+    flex-wrap: nowrap;
+    gap: var(--vao);
+    padding-right: var(--vao);
+  }
+
+  /* A cópia tem a largura exata da lista, então -50% é uma volta inteira. */
+  @keyframes rolar {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .controle {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: var(--radius);
+    /*
+      Mouse e toque passam para o texto por baixo. `pointer-events` só afeta o
+      ponteiro: o botão continua no Tab, e Enter/Espaço continuam disparando
+      `click`.
+    */
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  // Devagar o bastante para ler o nome enquanto passa.
+  const VELOCIDADE_PX_S = 40;
+  const DESACELERAR_MS = 600;
+
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const iniciar = async (faixa: HTMLElement) => {
+    const rolo = faixa.querySelector<HTMLElement>('[data-rolo]');
+    const lista = rolo?.querySelector('ul');
+    const controle = faixa.querySelector<HTMLButtonElement>('[data-controle]');
+    const palco = faixa.querySelector<HTMLElement>('.palco');
+    if (!rolo || !lista || !controle || !palco) return;
+
+    // A largura da lista define a duração, e ela muda quando a fonte chega.
+    await document.fonts.ready;
+
+    const copia = lista.cloneNode(true) as HTMLElement;
+    copia.setAttribute('aria-hidden', 'true');
+    copia.inert = true;
+    rolo.append(copia);
+
+    // Mede já no layout de faixa, sem quebra de linha. Duração pela largura:
+    // a velocidade fica a mesma no celular e no desktop.
+    faixa.classList.add('anda');
+    const largura = lista.getBoundingClientRect().width;
+    rolo.style.setProperty('--duracao', `${largura / VELOCIDADE_PX_S}s`);
+    controle.hidden = false;
+
+    const animacao = rolo.getAnimations()[0];
+    if (!animacao) return;
+
+    let fixada = false; // pausa do clique, do toque, do Enter ou do Espaço
+    let sobMouse = false;
+    let comFoco = false;
+    let taxa = 1;
+    let quadro = 0;
+
+    /*
+      Parada suave. `animation-play-state: paused` pararia de uma vez; aqui a
+      velocidade da própria animação CSS desce até zero em ease-out.
+      `updatePlaybackRate` preserva a posição, então não há salto.
+    */
+    const irPara = (alvo: number) => {
+      cancelAnimationFrame(quadro);
+      const inicio = taxa;
+      const t0 = performance.now();
+      const passo = (agora: number) => {
+        const p = Math.min(1, (agora - t0) / DESACELERAR_MS);
+        taxa = inicio + (alvo - inicio) * (1 - (1 - p) ** 3);
+        animacao.updatePlaybackRate(taxa);
+        if (p < 1) quadro = requestAnimationFrame(passo);
+      };
+      quadro = requestAnimationFrame(passo);
+    };
+
+    const atualizar = () => irPara(fixada || sobMouse || comFoco ? 0 : 1);
+
+    /*
+      Hover e clique ficam no `palco`, e não no botão (que não recebe ponteiro):
+      assim `pointerenter`/`pointerleave` valem para a área inteira, mesmo com
+      o ponteiro sobre um nome ou um logo.
+    */
+
+    // Só o mouse desacelera ao passar por cima. No toque, `pointerenter`
+    // também dispara, e aí a faixa pararia a cada rolagem de página.
+    palco.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      sobMouse = true;
+      atualizar();
+    });
+    palco.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      sobMouse = false;
+      atualizar();
+    });
+
+    // Só o foco de teclado para a faixa. O toque também dá foco ao botão em
+    // alguns browsers, e aí o segundo toque não conseguiria retomar.
+    controle.addEventListener('focus', () => {
+      if (!controle.matches(':focus-visible')) return;
+      comFoco = true;
+      atualizar();
+    });
+    controle.addEventListener('blur', () => {
+      comFoco = false;
+      atualizar();
+    });
+
+    // Guarda o tipo do último ponteiro, para o clique saber se veio de um
+    // toque. O clique do teclado é resolvido abaixo, pelo alvo do evento.
+    let ultimoPonteiro: string | undefined;
+    palco.addEventListener('pointerdown', (e) => {
+      ultimoPonteiro = e.pointerType;
+    });
+
+    /*
+      Alterna a pausa só em dois casos: toque em qualquer ponto da faixa, ou
+      Enter/Espaço no botão focado (o `click` sobe até aqui). Clique de mouse
+      não alterna: ele costuma vir de uma seleção de texto, e o mouse já pausa
+      ao passar por cima.
+    */
+    palco.addEventListener('click', (e) => {
+      const viaTeclado = e.target === controle;
+      if (!viaTeclado && ultimoPonteiro !== 'touch') return;
+      fixada = !fixada;
+      controle.setAttribute('aria-pressed', String(fixada));
+      atualizar();
+    });
+
+    // Fora da tela, para de vez: não gasta bateria à toa.
+    const observador = new IntersectionObserver(([entrada]) => {
+      if (entrada.isIntersecting) animacao.play();
+      else animacao.pause();
+    });
+    observador.observe(faixa);
+    document.addEventListener('astro:before-swap', () => observador.disconnect(), {
+      once: true,
+    });
+  };
+
+  /*
+    Inicializa em `astro:page-load` (ClientRouter). Com movimento reduzido, nem
+    começa: a lista parada é o estado final.
+  */
+  document.addEventListener('astro:page-load', () => {
+    if (calmo.matches) return;
+    for (const faixa of document.querySelectorAll<HTMLElement>(
+      '[data-faixa]:not([data-iniciado])',
+    )) {
+      faixa.dataset.iniciado = '';
+      iniciar(faixa);
+    }
+  });
+</script>

@@ -1,0 +1,185 @@
+---
+import { AUTOR } from '../consts';
+import { linkWhatsApp } from '../lib/whatsapp';
+import LinkExterno from './LinkExterno.astro';
+import Icone from './Icone.astro';
+
+/*
+  Rodapé em card, adaptado de um card do Uiverse.io: no hover o card encolhe
+  para 0,97, o conteúdo para 0,96 e o símbolo de pontos cresce; apertar um
+  espaço vazio encolhe para 0,9. Tudo em 400ms, com a sombra acompanhando.
+
+  Dois cuidados, porque este card tem links dentro:
+  - O hover é da `.moldura`, um div sem padding do tamanho exato do card, que
+    nunca encolhe. Com o hover no `<footer>` inteiro, o mouse no verde em volta
+    disparava a animação; com o hover no próprio card, a borda piscava ao
+    encolher debaixo do mouse.
+  - O aperto não vale sobre link: encolher o card tiraria o link de baixo do
+    dedo, e o clique cairia no card.
+
+  Sem `cursor: pointer`: quem é clicável são os links. Com movimento reduzido,
+  nada se mexe.
+*/
+const ano = new Date().getFullYear();
+const whatsapp = linkWhatsApp();
+---
+
+<footer class="rodape veu">
+  <div class="moldura">
+  <div class="cartao">
+    <div class="conteudo">
+      <p class="links">
+        {
+          whatsapp && (
+            <LinkExterno href={whatsapp}>
+              <Icone nome="whatsapp" />
+              WhatsApp
+            </LinkExterno>
+          )
+        }
+        <a href={`mailto:${AUTOR.email}`}><Icone nome="email" />E-mail</a>
+        <LinkExterno href={AUTOR.linkedin}><Icone nome="linkedin" />LinkedIn</LinkExterno>
+        <LinkExterno href={AUTOR.github}><Icone nome="github" />GitHub</LinkExterno>
+        <a href="/privacidade/">Privacidade</a>
+      </p>
+
+      {/* A stack do próprio site, em letra pequena, para quem é da área. */}
+      <p class="colofao">
+        Feito em Astro, com CSS escrito à mão. Tipografia Atkinson Hyperlegible
+        Next e JetBrains Mono, auto-hospedadas, sem CDN de terceiro. Hospedado na
+        Vercel.
+      </p>
+
+      <p class="copyright">© {ano} {AUTOR.nome}</p>
+    </div>
+
+    <span class="pontos" aria-hidden="true"></span>
+  </div>
+  </div>
+</footer>
+
+<style>
+  /*
+    Mesma largura máxima do resto do site (62rem). O véu repete o da seção de
+    cima, para o verde em volta do card não formar degrau na emenda.
+  */
+  .rodape {
+    --veu: 0.6;
+    --veu-borda: 0.6;
+    --respiro: var(--sp-l);
+    padding-block: var(--sp-xl);
+    padding-inline: max(0.5rem, calc((100% - 62rem) / 2));
+  }
+
+  @media (min-width: 40rem) {
+    .rodape {
+      --respiro: var(--sp-xl);
+    }
+  }
+
+  /* Área do hover: exatamente o tamanho do card parado (ver o topo do arquivo). */
+  .moldura {
+    display: block;
+  }
+
+  .cartao {
+    position: relative;
+    padding: var(--sp-xl) var(--respiro);
+    background: var(--surface);
+    border: 1px solid var(--linha-suave);
+    border-radius: var(--radius-painel);
+    /* A única sombra do site. Bem difusa: sobre fundo escuro, sombra dura
+       viraria uma borda preta em vez de relevo. */
+    box-shadow: 0 10px 26px -12px rgb(0 0 0 / 0.55);
+    transition:
+      transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-l);
+    /* O símbolo de pontos ocupa o canto de baixo, à direita. */
+    padding-right: 3rem;
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-m) var(--sp-l);
+  }
+
+  .links :global(a) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    min-height: var(--toque);
+    font-weight: 700;
+    font-size: var(--step--1);
+  }
+
+  .colofao {
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    max-width: var(--measure);
+  }
+
+  .copyright {
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+  }
+
+  /* Os mesmos pontos da chuva, no mesmo passo de 8px. Fica fora do .conteudo
+     de propósito: cresce enquanto o conteúdo encolhe. */
+  .pontos {
+    position: absolute;
+    right: var(--respiro);
+    bottom: var(--sp-xl);
+    width: 2rem;
+    height: 2rem;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      var(--ink-muted) 1.5px,
+      transparent 1.6px
+    );
+    background-size: 8px 8px;
+    opacity: 0.55;
+    transform-origin: 100% 100%;
+    pointer-events: none;
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Só com mouse: no toque, o hover "gruda" depois do dedo sair. */
+  @media (hover: hover) and (pointer: fine) {
+    .moldura:hover .cartao {
+      transform: scale(0.97);
+      box-shadow: 0 5px 14px -8px rgb(0 0 0 / 0.5);
+    }
+
+    .moldura:hover .conteudo {
+      transform: scale(0.96);
+    }
+
+    .moldura:hover .pontos {
+      transform: scale(1.2);
+    }
+  }
+
+  /* Aperto num espaço vazio do card (não vale sobre link). Começa em .moldura
+     para ter a mesma especificidade da regra do hover e poder vencê-la. */
+  .moldura .cartao:active:not(:has(a:active)) {
+    transform: scale(0.9);
+    box-shadow: 0 2px 8px -6px rgb(0 0 0 / 0.45);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .moldura:hover .cartao,
+    .moldura:hover .conteudo,
+    .moldura:hover .pontos,
+    .moldura .cartao:active:not(:has(a:active)) {
+      transform: none;
+    }
+  }
+</style>

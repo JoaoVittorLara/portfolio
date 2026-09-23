@@ -1,0 +1,139 @@
+---
+import { AUTOR } from '../consts';
+import Icone from './Icone.astro';
+
+/*
+  Endereço de e-mail com botão de copiar, abaixo dos botões principais do
+  Contato, para quem prefere copiar em vez de abrir um app de e-mail.
+
+  O endereço é um `mailto:` de verdade. O botão nasce `hidden` e só aparece
+  quando o script roda e o navegador consegue copiar: sem JavaScript, não
+  existe botão que não funciona.
+
+  Copiar pode falhar (contexto não seguro, permissão negada). Nesse caso o
+  estado de erro aponta para o endereço que já está na tela, em vez de falhar
+  em silêncio.
+*/
+---
+
+<div class="copiar" data-copiar-email data-email={AUTOR.email}>
+  <a class="endereco" href={`mailto:${AUTOR.email}`}>{AUTOR.email}</a>
+
+  {/*
+    O check fica num span porque o <Icone /> não repassa `hidden` para o
+    <svg>: só aceita os props que declara.
+  */}
+  <button type="button" class="botao-copiar" data-botao hidden>
+    <span class="icone-copiado" data-icone hidden><Icone nome="check" /></span>
+    <span data-rotulo>Copiar</span>
+  </button>
+
+  <p class="status" role="status" aria-live="polite" data-status></p>
+</div>
+
+<style>
+  .copiar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-s) var(--sp-m);
+  }
+
+  /* Texto de apoio, menor: a ação principal é o botão "Mandar e-mail". */
+  .endereco {
+    font-size: var(--step--1);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--toque);
+    overflow-wrap: anywhere;
+  }
+
+  .botao-copiar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2xs);
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--ink);
+    background: none;
+    border: 0;
+    padding: 0;
+    min-height: var(--toque);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    cursor: pointer;
+  }
+
+  .botao-copiar:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* O svg do <Icone/> é display:block; aqui ele precisa ficar na linha do texto. */
+  .icone-copiado :global(.icone) {
+    display: inline-block;
+  }
+
+  .status {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: var(--step--1);
+    min-height: 1.5em;
+  }
+
+  .status:empty {
+    min-height: 0;
+  }
+</style>
+
+<script>
+  const iniciar = (raiz: HTMLElement) => {
+    const email = raiz.dataset.email ?? '';
+    const botao = raiz.querySelector<HTMLButtonElement>('[data-botao]');
+    const status = raiz.querySelector<HTMLElement>('[data-status]');
+    const icone = raiz.querySelector<HTMLElement>('[data-icone]');
+    const rotulo = raiz.querySelector<HTMLElement>('[data-rotulo]');
+    if (!botao || !status || !email || !icone || !rotulo) return;
+
+    // Só revela o botão se dá para copiar de fato. Sem suporte, o endereço
+    // continua ali como link, que era o caminho principal desde o começo.
+    if (!navigator.clipboard?.writeText) return;
+    botao.hidden = false;
+
+    let voltar: ReturnType<typeof setTimeout> | undefined;
+
+    botao.addEventListener('click', async () => {
+      clearTimeout(voltar);
+      try {
+        await navigator.clipboard.writeText(email);
+        icone.hidden = false;
+        rotulo.textContent = 'Copiado';
+        status.textContent = `${email} copiado para a área de transferência.`;
+        voltar = setTimeout(() => {
+          icone.hidden = true;
+          rotulo.textContent = 'Copiar';
+          status.textContent = '';
+        }, 4000);
+      } catch {
+        icone.hidden = true;
+        rotulo.textContent = 'Copiar';
+        status.textContent =
+          'Não consegui copiar. Selecione o endereço ao lado, ou clique nele para abrir seu e-mail.';
+      }
+    });
+  };
+
+  /*
+    Inicializa em `astro:page-load`: com o ClientRouter, o script não roda de
+    novo na troca de página. O evento dispara na primeira carga e depois de
+    cada navegação, e `data-iniciado` impede ligar o mesmo clique duas vezes.
+  */
+  document.addEventListener('astro:page-load', () => {
+    for (const raiz of document.querySelectorAll<HTMLElement>(
+      '[data-copiar-email]:not([data-iniciado])',
+    )) {
+      raiz.dataset.iniciado = '';
+      iniciar(raiz);
+    }
+  });
+</script>

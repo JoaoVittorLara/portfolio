@@ -1,0 +1,289 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import Icone from './Icone.astro';
+
+/*
+  Vídeo do projeto por cima do screenshot, nunca no lugar dele. A <img>
+  continua na página e é o que aparece sem JavaScript, com movimento reduzido,
+  com economia de dados, sem suporte ao formato ou sem o arquivo. O LCP
+  continua sendo a imagem otimizada.
+
+  O arquivo é achado por glob (src/assets/projetos/<id>.webm ou .mp4). Sem
+  arquivo, fica só o screenshot, sem quebrar o build.
+
+  Só baixa se for tocar: sem tag de origem no HTML e com preload="none", a URL
+  vai em data-* e o script só a aplica depois do `load` e na primeira vez que
+  a capa aparece na tela. Toca na tela e pausa fora dela.
+
+  Botão de pausar (WCAG 2.2.2: vídeo automático com mais de 5 s precisa de um
+  jeito de parar). Nasce `hidden` e só aparece quando o vídeo toca de verdade.
+  O rótulo alterna entre "Pausar" e "Retomar", sem aria-pressed, para não ser
+  lido duas vezes.
+
+  Os ícones ficam em span porque o <Icone /> não repassa `hidden` ao svg. O
+  vídeo é aria-hidden: o alt da imagem já descreve o que ele mostra.
+*/
+interface Props {
+  id: string;
+  imagem: ImageMetadata;
+  alt: string;
+}
+
+const { id, imagem, alt } = Astro.props;
+
+const videos = import.meta.glob<string>('../assets/projetos/*.{webm,mp4}', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const urlDe = (extensao: string) =>
+  Object.entries(videos).find(([caminho]) =>
+    caminho.endsWith(`/${id}.${extensao}`),
+  )?.[1];
+
+const webm = urlDe('webm');
+const mp4 = urlDe('mp4');
+const temVideo = Boolean(webm || mp4);
+---
+
+<div
+  class="midia"
+  data-video-projeto={temVideo ? '' : undefined}
+  data-webm={webm}
+  data-mp4={mp4}
+>
+  <Image
+    class="capa"
+    src={imagem}
+    alt={alt}
+    widths={[640, 960]}
+    sizes="(min-width: 48rem) 60rem, 100vw"
+    loading="eager"
+  />
+
+  {
+    temVideo && (
+      <>
+        <video
+          class="video"
+          muted
+          loop
+          playsinline
+          preload="none"
+          aria-hidden="true"
+          tabindex="-1"
+          data-video
+        />
+        <button
+          type="button"
+          class="controle"
+          aria-label="Pausar a demonstração em vídeo"
+          hidden
+          data-controle
+        >
+          <span data-icone-pausa>
+            <Icone nome="pausa" />
+          </span>
+          <span data-icone-tocar hidden>
+            <Icone nome="tocar" />
+          </span>
+        </button>
+      </>
+    )
+  }
+</div>
+
+<style>
+  /*
+    As gravações têm uma borda preta de uns 42px de cada lado. O zoom esconde
+    essa borda, e o `overflow` corta o excesso no canto arredondado. Com uma
+    gravação sem borda, --zoom-video volta a 1.
+  */
+  .midia {
+    --zoom-video: 1.07;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  /* 2:1, a mesma proporção da home, para a transição entre as páginas não
+     esticar a imagem. */
+  .capa {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+
+  .video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(var(--zoom-video));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+  }
+
+  .midia.no-ar .video {
+    opacity: 1;
+  }
+
+  /* Claro com ícone escuro, para aparecer em cima de screenshot escuro ou
+     claro. 44px, o alvo de toque mínimo. */
+  .controle {
+    position: absolute;
+    right: var(--sp-s);
+    bottom: var(--sp-s);
+    display: grid;
+    place-items: center;
+    width: var(--toque);
+    height: var(--toque);
+    padding: 0;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+
+  .controle:hover {
+    border-color: var(--ink);
+  }
+
+  /* `:not([hidden])` de propósito: um `display` escrito no CSS vence o atributo
+     `hidden`, e os dois ícones (pausar e tocar) apareceriam juntos. */
+  .controle span:not([hidden]) {
+    display: grid;
+    place-items: center;
+  }
+</style>
+
+<script>
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Tudo que precisa parar quando a página sai ou quando a pessoa pede menos
+  // movimento no meio da visita.
+  const paradas = new Set<() => void>();
+
+  const economiaDeDados = () =>
+    (navigator as Navigator & { connection?: { saveData?: boolean } })
+      .connection?.saveData === true;
+
+  const iniciar = (midia: HTMLElement) => {
+    const video = midia.querySelector<HTMLVideoElement>('[data-video]');
+    const controle = midia.querySelector<HTMLButtonElement>('[data-controle]');
+    const iconePausa = midia.querySelector<HTMLElement>('[data-icone-pausa]');
+    const iconeTocar = midia.querySelector<HTMLElement>('[data-icone-tocar]');
+    if (!video || !controle || !iconePausa || !iconeTocar) return;
+
+    // Movimento reduzido ou economia de dados: nenhum byte de vídeo é pedido.
+    if (calmo.matches || economiaDeDados()) return;
+    if (!('IntersectionObserver' in window)) return;
+
+    // WebM primeiro, MP4 como alternativa.
+    const url =
+      midia.dataset.webm && video.canPlayType('video/webm')
+        ? midia.dataset.webm
+        : midia.dataset.mp4 && video.canPlayType('video/mp4')
+          ? midia.dataset.mp4
+          : undefined;
+    if (!url) return;
+
+    let visivel = false;
+    let pausadoPelaPessoa = false;
+    let baixou = false;
+
+    const tocar = async () => {
+      if (!visivel || pausadoPelaPessoa) return;
+      try {
+        video.muted = true; // o atributo não basta em alguns iOS
+        await video.play();
+      } catch {
+        // Autoplay bloqueado (economia de bateria do iOS, por exemplo): o
+        // screenshot continua no lugar.
+      }
+    };
+
+    video.addEventListener('playing', () => {
+      midia.classList.add('no-ar');
+      controle.hidden = false;
+    });
+
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        visivel = entrada.isIntersecting;
+        if (!visivel) {
+          video.pause();
+          return;
+        }
+        // O arquivo só é pedido quando esta capa aparece pela primeira vez:
+        // /projetos/ tem os três vídeos, e quem lê só o primeiro não baixa os
+        // outros dois.
+        if (!baixou) {
+          baixou = true;
+          video.src = url;
+        }
+        tocar();
+      },
+      { threshold: 0.4 },
+    );
+
+    controle.addEventListener('click', () => {
+      pausadoPelaPessoa = !pausadoPelaPessoa;
+      controle.setAttribute(
+        'aria-label',
+        pausadoPelaPessoa
+          ? 'Retomar a demonstração em vídeo'
+          : 'Pausar a demonstração em vídeo',
+      );
+      iconePausa.hidden = pausadoPelaPessoa;
+      iconeTocar.hidden = !pausadoPelaPessoa;
+      if (pausadoPelaPessoa) video.pause();
+      else tocar();
+    });
+
+    const parar = () => {
+      observador.disconnect();
+      video.pause();
+      midia.classList.remove('no-ar');
+      controle.hidden = true;
+      paradas.delete(parar);
+    };
+    paradas.add(parar);
+
+    // Só depois do `load`, para o vídeo nunca competir com o LCP.
+    const carregar = () => observador.observe(midia);
+    if (document.readyState === 'complete') carregar();
+    else window.addEventListener('load', carregar, { once: true });
+  };
+
+  /*
+    Inicializa em `astro:page-load`, com `data-iniciado`, por causa do
+    ClientRouter. Antes da troca de página tudo para, para o vídeo da página
+    que sai não continuar tocando escondido.
+  */
+  document.addEventListener('astro:page-load', () => {
+    for (const midia of document.querySelectorAll<HTMLElement>(
+      '[data-video-projeto]:not([data-iniciado])',
+    )) {
+      midia.dataset.iniciado = '';
+      iniciar(midia);
+    }
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    for (const parar of [...paradas]) parar();
+  });
+
+  // Quem liga "reduzir movimento" no meio da visita perde o vídeo na hora.
+  calmo.addEventListener('change', () => {
+    if (calmo.matches) for (const parar of [...paradas]) parar();
+  });
+</script>

@@ -1,0 +1,396 @@
+---
+import { PUBLIC_WEB3FORMS_KEY } from 'astro:env/client';
+import Icone from './Icone.astro';
+
+/*
+  Formulário de contato pelo Web3Forms: site estático, sem backend. Form
+  nativo com um script pequeno, sem framework.
+
+  A chave vem do .env (`env.schema` no astro.config.mjs). Ela é pública por
+  desenho: o envio sai do navegador, então o valor aparece no campo oculto
+  abaixo. Fora do código por organização, não para esconder; quem protege
+  contra abuso é o domínio permitido no painel do Web3Forms, o rate limit
+  deles e o honeypot.
+
+  A validação nativa do navegador continua ligada (sem `novalidate`); o script
+  só troca as mensagens por versões em português.
+
+  Atenção: nunca escreva a tag de script por extenso num comentário deste
+  arquivo. O scan de dependências do Vite lê o texto cru, acha a tag e quebra
+  o `npm run dev`.
+*/
+---
+
+<form class="form" data-form action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value={PUBLIC_WEB3FORMS_KEY} />
+  <input type="hidden" name="subject" value="Contato pelo portfólio" />
+  <input type="hidden" name="from_name" value="Portfólio João Vittor" />
+
+  {/*
+    Honeypot: escondido da tela, do leitor de tela e da tabulação. Só um bot
+    que preenche tudo marca este campo.
+  */}
+  <input
+    type="checkbox"
+    name="botcheck"
+    style="display:none"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+  />
+
+  <div class="campos" data-campos>
+    <p class="campo">
+      <label for="form-nome">Nome</label>
+      <span class="entrada">
+        <Icone nome="nome" class="ico" />
+        <input
+          id="form-nome"
+          name="name"
+          type="text"
+          required
+          autocomplete="name"
+          aria-describedby="erro-nome"
+          data-msg-vazio="Escreva seu nome."
+        />
+      </span>
+      <span class="erro" id="erro-nome" data-erro></span>
+    </p>
+
+    <p class="campo">
+      <label for="form-email">E-mail</label>
+      <span class="entrada">
+        <Icone nome="email" class="ico" />
+        <input
+          id="form-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          aria-describedby="erro-email"
+          data-msg-vazio="Escreva seu e-mail, para eu poder responder."
+          data-msg-formato="Este e-mail parece incompleto. Falta o @?"
+        />
+      </span>
+      <span class="erro" id="erro-email" data-erro></span>
+    </p>
+
+    <p class="campo">
+      <label for="form-mensagem">Mensagem</label>
+      <span class="entrada entrada--area">
+        <Icone nome="mensagem" class="ico" />
+        <textarea
+          id="form-mensagem"
+          name="message"
+          rows="5"
+          required
+          aria-describedby="erro-mensagem"
+          data-lenis-prevent
+          data-msg-vazio="Escreva sua mensagem."></textarea>
+      </span>
+      <span class="erro" id="erro-mensagem" data-erro></span>
+    </p>
+
+    <p class="acao">
+      <button type="submit" class="btn" data-enviar>Enviar mensagem</button>
+    </p>
+  </div>
+
+  {/* Recebe foco no envio, para o leitor de tela anunciar o resultado. */}
+  <p class="status" role="status" aria-live="polite" tabindex="-1" data-form-status></p>
+
+  <p class="nota">
+    Os dados vão para o meu e-mail através do Web3Forms e ficam guardados por 30
+    dias. Detalhes na <a href="/privacidade/">política de privacidade</a>.
+  </p>
+</form>
+
+<style>
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-m);
+  }
+
+  .campos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-m);
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2xs);
+    margin: 0;
+  }
+
+  label {
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+
+  /*
+    Ícone decorativo dentro do campo, à esquerda. É um span, e não uma div,
+    porque o campo está dentro de um <p>, que o HTML fecharia sozinho diante
+    de um elemento de bloco.
+  */
+  .entrada {
+    position: relative;
+    display: block;
+  }
+
+  .entrada :global(.ico) {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+
+  .entrada--area :global(.ico) {
+    top: 1rem;
+    transform: none;
+  }
+
+  .entrada:focus-within :global(.ico) {
+    color: var(--ink);
+  }
+
+  /*
+    Campo num verde mais escuro que o fundo. Contraste: texto 11,28:1, borda
+    6,03:1 (o mínimo para borda de campo é 3:1).
+  */
+  input[type='text'],
+  input[type='email'],
+  textarea {
+    font: inherit;
+    font-size: var(--step-0);
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--ink-muted);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.7rem 0.6rem 2.6rem;
+    min-height: var(--toque);
+    width: 100%;
+  }
+
+  /*
+    Cresce conforme a pessoa escreve: `field-sizing: content` onde existe, e o
+    script abaixo como alternativa. O teto evita que uma mensagem longa empurre
+    o botão de enviar para fora da tela no celular; passou dele, rola dentro.
+  */
+  textarea {
+    resize: vertical;
+    line-height: 1.5;
+    field-sizing: content;
+    min-height: 6.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--erro);
+    border-width: 2px;
+  }
+
+  .erro {
+    font-size: var(--step--1);
+    color: var(--erro);
+    min-height: 0;
+  }
+
+  .erro:empty {
+    display: none;
+  }
+
+  .acao {
+    margin: 0;
+  }
+
+  .status {
+    margin: 0;
+    font-size: var(--step--1);
+  }
+
+  .status:empty {
+    display: none;
+  }
+
+  .status:focus-visible {
+    outline: 3px solid var(--action);
+    outline-offset: 3px;
+  }
+
+  .status[data-tipo='erro'] {
+    color: var(--erro);
+  }
+
+  .nota {
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+  }
+</style>
+
+<script>
+  import { AUTOR } from '../consts';
+
+  const EMAIL = AUTOR.email;
+
+  type Campo = HTMLInputElement | HTMLTextAreaElement;
+
+  /*
+    Mensagens próprias em português: a mensagem nativa segue o idioma do
+    navegador, não o `lang` da página, e um Chrome em inglês mostraria "Please
+    fill out this field" num site em português.
+  */
+  const mensagemPara = (campo: Campo) => {
+    const v = campo.validity;
+    if (v.valueMissing) {
+      return campo.dataset.msgVazio ?? 'Preencha este campo.';
+    }
+    if (v.typeMismatch) {
+      return campo.dataset.msgFormato ?? 'O formato não parece certo.';
+    }
+    // Caso não previsto: fica a mensagem nativa do navegador.
+    return campo.validationMessage;
+  };
+
+  /*
+    Limpa a mensagem própria, deixa o navegador reavaliar e só então aplica a
+    nova. Lê `validity.valid` em vez de chamar `checkValidity()`: esta função
+    roda dentro do evento `invalid`, e `checkValidity()` dispararia `invalid`
+    de novo, num laço sem fim.
+  */
+  const validarCampo = (campo: Campo) => {
+    campo.setCustomValidity('');
+    const valido = campo.validity.valid;
+    if (!valido) campo.setCustomValidity(mensagemPara(campo));
+
+    const alvo = document.getElementById(
+      campo.getAttribute('aria-describedby') ?? '',
+    );
+    campo.setAttribute('aria-invalid', String(!valido));
+    if (alvo) alvo.textContent = valido ? '' : campo.validationMessage;
+    return valido;
+  };
+
+  const iniciar = (form: HTMLFormElement) => {
+    const campos = form.querySelector<HTMLElement>('[data-campos]');
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const enviar = form.querySelector<HTMLButtonElement>('[data-enviar]');
+    if (!campos || !status || !enviar) return;
+
+    const controles = form.querySelectorAll<Campo>(
+      'input[required], textarea[required]',
+    );
+
+    for (const campo of controles) {
+      /*
+        Com a validação nativa ligada, enviar com campo vazio não dispara
+        `submit`: o navegador dispara `invalid` em cada campo com problema,
+        antes de mostrar o balão. É aqui que a mensagem em português entra.
+      */
+      campo.addEventListener('invalid', () => validarCampo(campo));
+      campo.addEventListener('blur', () => validarCampo(campo));
+      campo.addEventListener('input', () => {
+        // Limpa na hora, para o campo não ficar marcado enquanto é corrigido.
+        campo.setCustomValidity('');
+        if (campo.getAttribute('aria-invalid') === 'true') validarCampo(campo);
+      });
+    }
+
+    /*
+      Alternativa para navegador sem `field-sizing: content` (onde existe, este
+      bloco nem é registrado): zera a altura, lê scrollHeight e aplica. As
+      bordas entram na conta porque o box-sizing é border-box e scrollHeight
+      não as inclui.
+    */
+    if (!CSS.supports('field-sizing', 'content')) {
+      for (const area of form.querySelectorAll<HTMLTextAreaElement>(
+        'textarea',
+      )) {
+        const ajustar = () => {
+          const s = getComputedStyle(area);
+          const bordas =
+            parseFloat(s.borderTopWidth) + parseFloat(s.borderBottomWidth);
+          area.style.height = 'auto';
+          area.style.height = `${area.scrollHeight + bordas}px`;
+        };
+        area.addEventListener('input', ajustar);
+        ajustar();
+      }
+    }
+
+    const definirStatus = (texto: string, tipo: 'ok' | 'erro' | '') => {
+      status.textContent = texto;
+      if (tipo) status.dataset.tipo = tipo;
+      else delete status.dataset.tipo;
+    };
+
+    form.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+
+      // Segurança extra: com a validação nativa, só chega aqui formulário válido.
+      let tudoValido = true;
+      for (const campo of controles) {
+        if (!validarCampo(campo)) tudoValido = false;
+      }
+      if (!tudoValido) {
+        form.reportValidity();
+        return;
+      }
+
+      enviar.disabled = true;
+      enviar.textContent = 'Enviando';
+      definirStatus('Enviando sua mensagem.', '');
+
+      try {
+        const resposta = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        const dados = await resposta.json();
+
+        if (!resposta.ok || !dados.success) {
+          throw new Error(dados.message ?? 'Falha no envio');
+        }
+
+        campos.hidden = true;
+        definirStatus(
+          'Mensagem enviada. Respondo no seu e-mail, normalmente em um dia.',
+          'ok',
+        );
+      } catch {
+        enviar.disabled = false;
+        enviar.textContent = 'Enviar mensagem';
+        // Nunca falha em silêncio: o caminho alternativo aparece no erro.
+        definirStatus('', 'erro');
+        status.append('Não consegui enviar. Me escreva direto em ');
+        const link = document.createElement('a');
+        link.href = `mailto:${EMAIL}`;
+        link.textContent = EMAIL;
+        status.append(link, '.');
+      }
+
+      status.focus();
+    });
+  };
+
+  /*
+    Inicializa em `astro:page-load`: com o ClientRouter, o script não roda de
+    novo na troca de página, e o formulário voltaria sem os eventos (o envio
+    sairia pelo POST nativo, para fora do site). `data-iniciado` impede ligar
+    tudo duas vezes.
+  */
+  document.addEventListener('astro:page-load', () => {
+    for (const form of document.querySelectorAll<HTMLFormElement>(
+      '[data-form]:not([data-iniciado])',
+    )) {
+      form.dataset.iniciado = '';
+      iniciar(form);
+    }
+  });
+</script>

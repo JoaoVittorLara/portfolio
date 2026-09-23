@@ -1,0 +1,167 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { AUTOR } from '../consts';
+
+/*
+  O h1 é a oferta, e não o nome: quem chega sem contexto quer saber primeiro o
+  que eu faço. O nome fica ao lado da foto e no título da aba.
+
+  A foto é resolvida por glob, e não por import direto: import de arquivo
+  ausente quebra o build. O arquivo original tem 308px de largura (o Astro não
+  aumenta imagem), o que já dá 2,75x de densidade no espaço de 112px.
+*/
+const arquivos = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/joao-vittor.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+const foto = Object.values(arquivos)[0]?.default;
+---
+
+{/* O véu vai de ponta a ponta, e o conteúdo fica na casca, dentro dele. */}
+<section class="hero veu" aria-labelledby="hero-titulo">
+  <div class="casca conteudo">
+    <div class="identidade">
+      {
+        foto && (
+          <Image
+            class="foto"
+            src={foto}
+            alt={`${AUTOR.nomeCurto}, de terno escuro e gravata, olhando para a câmera`}
+            widths={[112, 224, 308]}
+            sizes="(min-width: 40rem) 112px, 88px"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )
+      }
+      <p class="nome">{AUTOR.nomeCurto}</p>
+    </div>
+
+    <h1 id="hero-titulo">
+      Faço sites para pequenos negócios e profissionais autônomos.
+    </h1>
+
+    <p class="oferta medida">
+      Página de apresentação, agendamento online e contato pelo WhatsApp,
+      pensados primeiro para o celular. Sou de {AUTOR.cidade} e atendo online.
+    </p>
+
+    <p class="formacao">
+      Técnico em Desenvolvimento de Sistemas, cursando Ciência da Computação.
+    </p>
+
+    {/*
+      Leva ao Contato em vez de abrir o WhatsApp direto: lá os dois canais
+      (WhatsApp e e-mail) aparecem lado a lado, com o mesmo peso.
+    */}
+    <div class="acoes">
+      <a class="btn" href="#contato">Falar comigo</a>
+      <a class="btn btn--fantasma" href="#projetos">Ver os projetos</a>
+    </div>
+
+    {/*
+      Pista de rolagem: mostra que há mais conteúdo abaixo. Decorativa
+      (aria-hidden) e parada. Aparece mesmo sem JavaScript; o script só a
+      esconde depois da primeira rolagem.
+    */}
+    <div class="pista" data-pista aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4v13m0 0-5-5m5 5 5-5" />
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+    A chuva aparece mais no topo (véu mais aberto). Isso só funciona porque
+    todo texto daqui usa --ink: o texto secundário não teria contraste
+    suficiente sobre um véu tão aberto.
+  */
+  .hero {
+    --veu: 0.72;
+  }
+
+  .conteudo {
+    padding-block: var(--sp-xl) var(--sp-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-l);
+  }
+
+  .identidade {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-m);
+  }
+
+  .foto {
+    width: 88px;
+    height: 88px;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 25%;
+    background: var(--surface);
+  }
+
+  .nome {
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+
+  /* Medida curta no título: frase longa em linha única vira faixa, e o olho
+     perde o começo da próxima linha. */
+  h1 {
+    max-width: 22ch;
+  }
+
+  .oferta {
+    font-size: var(--step-1);
+  }
+
+  .formacao {
+    font-size: var(--step--1);
+  }
+
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-s);
+  }
+
+  .pista {
+    margin-top: var(--sp-s);
+    opacity: 0.5;
+    transition: opacity 300ms ease-out;
+  }
+
+  .pista.escondida {
+    opacity: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .foto {
+      width: 112px;
+      height: 112px;
+    }
+  }
+</style>
+
+<script>
+  // Some depois da primeira rolagem e não volta. `once: true` remove o listener.
+  document.addEventListener('astro:page-load', () => {
+    const pista = document.querySelector<HTMLElement>(
+      '.pista:not([data-iniciado])',
+    );
+    if (!pista) return;
+    pista.dataset.iniciado = '';
+
+    window.addEventListener(
+      'scroll',
+      () => pista.classList.add('escondida'),
+      { once: true, passive: true },
+    );
+  });
+</script>

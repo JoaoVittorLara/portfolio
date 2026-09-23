@@ -1,0 +1,128 @@
+---
+/*
+  Chuva de luz: camada fixa atrás do site inteiro, só CSS. Inspirada num efeito
+  do Uiverse.io, reescrita para desempenho: o original anima
+  `background-position` e usa `backdrop-filter`, e os dois repintam a tela
+  inteira a cada quadro.
+
+  - Cada faixa é um azulejo de gradientes que se repete, e a animação só
+    desloca a faixa por `transform`, um azulejo por volta. Roda no compositor,
+    sem repintar. A grade de pontos por cima é estática.
+  - Poucas faixas com várias gotas: cada faixa de largura total custa um passo
+    de composição por quadro.
+  - Posição, raio, comprimento, brilho e fase de cada gota são sorteados no
+    build, com semente fixa: a saída é sempre a mesma e nada roda no navegador.
+    Cada faixa tem um azulejo de largura diferente para as três não se
+    alinharem.
+  - Brilho máximo 0,9: o contraste do texto do site foi medido nesse pico.
+  - A duração de cada faixa já vem pronta em `FAIXAS`, em vez de calculada no
+    CSS a partir da altura: `calc()` não converte px em segundos, e uma duração
+    inválida faz o navegador descartar a animação inteira sem avisar.
+
+  Parada com `prefers-reduced-motion`. `aria-hidden`, porque é decoração.
+*/
+const SEMENTE = 20260920;
+const GOTAS_POR_FAIXA = 6;
+const BRILHO_MAX = 0.9;
+
+// Faixas: altura do azulejo, duração da volta e largura do azulejo.
+const FAIXAS = [
+  { h: 168, d: 4.2, w: 331 },
+  { h: 236, d: 3.93, w: 283 },
+  { h: 299, d: 3.74, w: 397 },
+];
+
+// mulberry32: gerador pequeno e determinístico, o suficiente para espalhar gotas.
+const criarSorteio = (semente: number) => {
+  let a = semente;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const sorteio = criarSorteio(SEMENTE);
+
+const faixas = FAIXAS.map(({ h, d, w }) => {
+  const gradientes: string[] = [];
+  const posicoes: string[] = [];
+
+  for (let i = 0; i < GOTAS_POR_FAIXA; i++) {
+    // Uma gota por sexto da largura, com folga nas pontas: espalhadas, mas
+    // sem alinhamento regular.
+    const x = Math.round(((i + 0.15 + sorteio() * 0.7) * w) / GOTAS_POR_FAIXA);
+    const raio = (8 + sorteio() * 11).toFixed(1);
+    const comprimento = Math.round(70 + sorteio() * 55);
+    const brilho = (BRILHO_MAX - 0.4 + sorteio() * 0.4).toFixed(2);
+    const fase = Math.floor(sorteio() * h);
+
+    gradientes.push(
+      `radial-gradient(${raio}px ${comprimento}px at ${x}px ${h}px, rgb(var(--gota) / ${brilho}), transparent)`,
+    );
+    posicoes.push(`0 ${fase}px`);
+  }
+
+  return `--h:${h}px; --d:${d}s; --w:${w}px; --g:${gradientes.join(', ')}; --p:${posicoes.join(', ')}`;
+});
+---
+
+<div class="chuva" aria-hidden="true">
+  {faixas.map((estilo) => <i style={estilo} />)}
+</div>
+
+<style>
+  .chuva {
+    --gota: 154 179 154;
+    --fundo-chuva: #0c2409;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+    background: var(--fundo-chuva);
+  }
+
+  i {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--h) * -1);
+    height: calc(100% + var(--h));
+    background-image: var(--g);
+    background-size: var(--w) var(--h);
+    background-position: var(--p);
+    will-change: transform;
+    animation: cair var(--d) linear infinite;
+  }
+
+  /* Grade de pontos, parada, por cima das gotas: só os furos deixam a luz passar. */
+  .chuva::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      transparent 0,
+      transparent 2px,
+      var(--fundo-chuva) 2px
+    );
+    background-size: 8px 8px;
+  }
+
+  @keyframes cair {
+    to {
+      transform: translateY(var(--h));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    i {
+      animation: none;
+      will-change: auto;
+    }
+  }
+</style>

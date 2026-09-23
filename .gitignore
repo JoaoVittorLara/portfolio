@@ -1,0 +1,42 @@
+# Build e tipos gerados
+dist/
+.astro/
+
+# Dependências
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variáveis de ambiente. O .env.example sobe como modelo, sem valor real.
+.env*
+!.env.example
+
+# Vercel CLI (IDs do projeto e build local)
+.vercel/
+
+# Sistema e editor
+.DS_Store
+desktop.ini
+Thumbs.db
+.idea/
+.claude/settings.local.json
+
+# Ferramentas de teste
+.gstack/
+
+# Material de origem que não vai para o site: vídeos brutos (os .webm finais
+# ficam em src/assets/projetos/), logos originais (as cópias usadas ficam em
+# src/assets/formacao/) e referência de estilo de terceiro.
+Videos/
+Logos Formação/
+Glideapps/
+
+# Documentos de trabalho do projeto, mantidos só localmente.
+CLAUDE.md
+DESIGN.md
+PRODUCT.md
+GRAVAR-VIDEOS.md

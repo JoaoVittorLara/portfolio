@@ -1,0 +1,211 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CartaoProjeto from '../../components/CartaoProjeto.astro';
+
+// getCollection() não garante ordem: ordenar é obrigatório.
+const projetos = (await getCollection('projetos')).sort(
+  (a, b) => a.data.ordem - b.data.ordem,
+);
+---
+
+{/*
+  Os três projetos numa página só, em pilha: cada card para quando o fim dele
+  encosta no fim da tela, e o próximo sobe por cima. A rolagem não é
+  sequestrada; sem JavaScript, a página é só três blocos em fila, com todo o
+  conteúdo. As URLs antigas de cada projeto redirecionam para a âncora do card
+  (astro.config.mjs).
+
+  `mono` pré-carrega a JetBrains Mono, usada nos números de cada card.
+*/}
+<Base
+  titulo="Projetos"
+  descricao="Três projetos conceituais: uma barbearia, um estúdio de personal training e um escritório de arquitetura. O que cada site faz, o desafio de cada um, e os números medidos."
+  caminho="/projetos/"
+  mono
+>
+  <div class="veu fundo-projetos">
+    <div class="casca intro">
+      <h1>Projetos</h1>
+      <p class="medida">
+        Três projetos conceituais: criei como se fossem para negócios de
+        verdade, para mostrar como eu trabalho. Todos estão no ar.
+      </p>
+    </div>
+
+    <div class="pilha" data-pilha>
+      {
+        projetos.map((projeto, i) => (
+          <CartaoProjeto projeto={projeto} ultimo={i === projetos.length - 1} />
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .intro {
+    padding-block: var(--sp-xl) var(--sp-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-s);
+  }
+
+  .pilha {
+    /* Bloco que contém os cards grudados: a pilha termina junto com ele. */
+    position: relative;
+    padding-bottom: var(--sp-xl);
+  }
+
+  /*
+    O empilhamento. O card rola inteiro e só para quando o FIM dele encosta no
+    fim da tela. Em sticky, isso é `top` NEGATIVO: altura da tela menos a altura
+    do card. Não é `bottom: 0`: ele segura o elemento antes de você chegar
+    nele, não depois de passar.
+
+    O CSS não sabe a altura do próprio elemento, então `--topo` vem do script
+    abaixo, e `[data-empilha]` só entra depois da medida: sem JavaScript, nenhum
+    card gruda com altura errada.
+
+    Sem z-index: o card seguinte no HTML já é desenhado por cima. `:global()`
+    porque os cards vêm de outro componente (CartaoProjeto), que o estilo com
+    escopo desta página não alcança; preso à `.pilha`, não vaza.
+  */
+  .pilha[data-empilha] > :global(.cartao-pilha) {
+    position: sticky;
+    top: var(--topo, 0px);
+  }
+
+  .pilha > :global(.cartao-pilha + .cartao-pilha) {
+    margin-top: var(--sp-xl);
+  }
+
+  /*
+    O recuo do card de trás, por animação ligada à rolagem (nativa, sem
+    biblioteca). Sem suporte, o `@supports` deixa só o empilhamento.
+
+    - Linha do tempo `scroll(root)`, e não `view()`: `view()` mede a posição do
+      card na tela, e um card travado não se move, então a animação congelaria.
+      O trecho vai em pixels (de quando o card trava até o próximo cobrir a
+      tela) e vem do mesmo script que calcula `--topo`.
+    - Escala e opacidade, que rodam no compositor. `filter: brightness`
+      repintaria um painel grande a cada quadro.
+    - `transform-origin` embaixo, onde o próximo card encosta: com a origem em
+      outro ponto, o fim do card subiria e abriria uma fresta entre os dois.
+    - As propriedades de animação vão separadas (`animation-name`,
+      `animation-timing-function`...): o minificador juntaria tudo no atalho
+      `animation`, e com a linha do tempo dentro do atalho o Chrome descarta a
+      declaração inteira.
+  */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .pilha[data-empilha] > :global(.cartao-pilha:not(:last-child)) {
+        transform-origin: 50% 100%;
+        animation-name: recuar;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: var(--recuo-de) var(--recuo-ate);
+      }
+
+      /*
+        Escurece o card de trás sem filtro. O trecho vem por variável porque
+        variável é herdada pelo ::after; `animation-range` não é.
+      */
+      .pilha[data-empilha] > :global(.cartao-pilha:not(:last-child)::after) {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: #0b1f09;
+        opacity: 0;
+        animation-name: afundar;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: var(--recuo-de) var(--recuo-ate);
+      }
+
+      @keyframes recuar {
+        to {
+          transform: scale(0.93);
+        }
+      }
+
+      @keyframes afundar {
+        to {
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+
+</style>
+
+<script>
+  /*
+    Calcula `--topo` (altura da tela menos a altura do card, nunca positivo) e
+    o trecho do recuo de cada card. Card que cabe na tela fica com 0.
+
+    A altura muda sozinha (fonte que carrega, vídeo que entra, tela que gira):
+    o ResizeObserver remede. O `resize` da janela só refaz as contas, sem ler
+    layout, porque no iPhone ele dispara a cada vez que a barra de endereço
+    aparece ou some.
+  */
+  let desligar: (() => void) | null = null;
+
+  function iniciarPilha() {
+    const pilha = document.querySelector<HTMLElement>('[data-pilha]');
+    if (!pilha || pilha.dataset.iniciado) return;
+    pilha.dataset.iniciado = 'sim';
+
+    const cards = Array.from(pilha.children) as HTMLElement[];
+    const alturas: number[] = [];
+    const topos: number[] = [];
+
+    // Só contas, nenhuma leitura de layout.
+    const aplicar = () => {
+      const tela = window.innerHeight;
+
+      cards.forEach((card, i) => {
+        card.style.setProperty('--topo', `${Math.min(0, tela - alturas[i])}px`);
+
+        // Trecho do recuo, em pixels de rolagem: de quando este card trava até
+        // o topo do próximo chegar ao topo da tela.
+        if (i + 1 < cards.length) {
+          card.style.setProperty('--recuo-de', `${Math.max(0, topos[i] + alturas[i] - tela)}px`);
+          card.style.setProperty('--recuo-ate', `${topos[i + 1]}px`);
+        }
+      });
+
+      pilha.dataset.empilha = 'sim';
+    };
+
+    // `offsetTop` e `offsetHeight` ignoram o deslocamento do sticky e a escala
+    // da animação: a medida é a mesma com a página rolada ou não.
+    const medir = () => {
+      const base = pilha.getBoundingClientRect().top + window.scrollY;
+      cards.forEach((card, i) => {
+        alturas[i] = card.offsetHeight;
+        topos[i] = base + card.offsetTop;
+      });
+      aplicar();
+    };
+
+    const observador = new ResizeObserver(medir);
+    for (const card of cards) observador.observe(card);
+    window.addEventListener('resize', aplicar);
+
+    // O ClientRouter troca o DOM inteiro: desliga o observador e o `resize`
+    // antes, para não medirem cards que já saíram da tela.
+    desligar = () => {
+      observador.disconnect();
+      window.removeEventListener('resize', aplicar);
+      desligar = null;
+    };
+  }
+
+  document.addEventListener('astro:page-load', iniciarPilha);
+  document.addEventListener('astro:before-swap', () => desligar?.());
+</script>

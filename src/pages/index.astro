@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import ProjetoLinha from '../components/ProjetoLinha.astro';
+import FaixaTecnologias from '../components/FaixaTecnologias.astro';
+import Sobre from '../components/Sobre.astro';
+import Formacao from '../components/Formacao.astro';
+import Contato from '../components/Contato.astro';
+import { SITE } from '../consts';
+
+// getCollection() não garante ordem: ordenar é obrigatório.
+const projetos = (await getCollection('projetos')).sort(
+  (a, b) => a.data.ordem - b.data.ordem,
+);
+---
+
+{/*
+  Ordem pensada para quem vai contratar: o que eu faço, o trabalho, quem sou e
+  como falar comigo. Os números técnicos de cada projeto ficam em /projetos/.
+
+  Os projetos vão num painel claro porque dois dos três screenshots são
+  escuros e perderiam a borda no verde.
+*/}
+<Base titulo={SITE.titulo} descricao={SITE.descricao} caminho="/">
+  <Hero />
+
+  {/*
+    O painel é opaco, então o véu em volta dele só decide o tom do verde nas
+    laterais. A borda do véu fica no 0,6 padrão (o mesmo das seções vizinhas)
+    para não criar uma faixa mais escura na emenda.
+  */}
+  <div class="veu fundo-projetos">
+  <section
+    id="projetos"
+    class="secao claro painel"
+    aria-labelledby="projetos-titulo"
+  >
+    <div class="casca">
+      <h2 id="projetos-titulo" data-revela>Projetos</h2>
+      <p class="intro medida" data-revela style="--atraso: 80ms">
+        Três projetos conceituais: criei como se fossem para negócios de
+        verdade, para mostrar como eu trabalho. Todos estão no ar.
+      </p>
+      {projetos.map((projeto) => <ProjetoLinha projeto={projeto} />)}
+    </div>
+  </section>
+  </div>
+
+  <FaixaTecnologias />
+  <Sobre />
+  <Formacao />
+  <Contato />
+</Base>
+
+<style>
+  .fundo-projetos {
+    --veu: 0.72;
+    --veu-borda: 0.6;
+  }
+
+  .intro {
+    margin-top: var(--sp-s);
+    color: var(--ink-muted);
+  }
+</style>

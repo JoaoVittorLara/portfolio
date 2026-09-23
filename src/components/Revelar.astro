@@ -1,0 +1,49 @@
+---
+/*
+  Entrada ao rolar: todo `[data-revela]` ganha `.revelado` na primeira vez que
+  entra na tela, e o CSS em global.css faz a transição.
+
+  O CSS só esconde os blocos quando há JavaScript e sem movimento reduzido, então
+  o conteúdo nunca fica preso escondido. Sem IntersectionObserver, revela tudo
+  de uma vez.
+
+  Inicializa em `astro:page-load`: com o ClientRouter, o script não roda de novo
+  na troca de página.
+*/
+---
+
+<script>
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let observador: IntersectionObserver | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+    observador?.disconnect();
+
+    const blocos = document.querySelectorAll<HTMLElement>(
+      '[data-revela]:not(.revelado)',
+    );
+    if (blocos.length === 0) return;
+
+    if (calmo.matches || !('IntersectionObserver' in window)) {
+      for (const bloco of blocos) bloco.classList.add('revelado');
+      return;
+    }
+
+    observador = new IntersectionObserver(
+      (entradas, esteObservador) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          entrada.target.classList.add('revelado');
+          esteObservador.unobserve(entrada.target);
+        }
+      },
+      // Limiar baixo de propósito: um bloco mais alto que a tela nunca teria
+      // metade dele visível ao mesmo tempo.
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+    );
+
+    for (const bloco of blocos) observador.observe(bloco);
+  });
+
+  document.addEventListener('astro:before-swap', () => observador?.disconnect());
+</script>

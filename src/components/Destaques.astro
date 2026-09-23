@@ -1,0 +1,41 @@
+---
+/**
+ * O que um projeto faz, em itens curtos. Usado na home e em /projetos/.
+ */
+interface Props {
+  itens: readonly string[];
+}
+
+const { itens } = Astro.props;
+---
+
+{/* role="list" porque o Safari tira a semântica de lista de `ul` sem marcador. */}
+<ul class="destaques" role="list">
+  {itens.map((item) => <li>{item}</li>)}
+</ul>
+
+<style>
+  .destaques {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2xs);
+  }
+
+  li {
+    display: flex;
+    gap: var(--sp-xs);
+    align-items: baseline;
+  }
+
+  /* Marcador desenhado, na cor do texto: some junto se a cor mudar. */
+  li::before {
+    content: '';
+    flex: none;
+    width: 0.4em;
+    height: 0.4em;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateY(-0.15em);
+  }
+</style>

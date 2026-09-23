@@ -1,0 +1,147 @@
+---
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
+import { SITE, AUTOR } from '../consts';
+import Rodape from '../components/Rodape.astro';
+import Chuva from '../components/Chuva.astro';
+import Revelar from '../components/Revelar.astro';
+import RolagemSuave from '../components/RolagemSuave.astro';
+import '../styles/global.css';
+
+interface Props {
+  titulo: string;
+  descricao: string;
+  /** Caminho da rota, com barra inicial. Ex: '/' ou '/privacidade'. */
+  caminho?: string;
+  /**
+   * Pré-carrega a fonte mono, usada só nos números de /projetos/. O browser só
+   * baixa uma fonte onde ela aparece; o preload forçaria o download em todas.
+   */
+  mono?: boolean;
+  /** Chuva de fundo. Desligada em /404 e /privacidade, onde a leitura vem antes. */
+  chuva?: boolean;
+  /** `<meta name="robots" content="noindex">`, usado só na página de erro. */
+  noindex?: boolean;
+}
+
+const {
+  titulo,
+  descricao,
+  caminho = '/',
+  mono = false,
+  chuva = true,
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(caminho, SITE.url).href;
+const ogImagem = new URL('/og.png', SITE.url).href;
+
+// Fora da home, o título ganha o nome no fim, para a aba e o resultado de
+// busca dizerem de quem é o site. A home já traz o nome no próprio título.
+const tituloFinal = caminho === '/' ? titulo : `${titulo} · ${AUTOR.nomeCurto}`;
+
+// Dados estruturados (JSON-LD): quem é a pessoa...
+const jsonLdPessoa = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: AUTOR.nome,
+  url: SITE.url,
+  email: `mailto:${AUTOR.email}`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: AUTOR.cidade,
+    addressRegion: AUTOR.estado,
+    addressCountry: AUTOR.pais,
+  },
+  sameAs: [AUTOR.github, AUTOR.linkedin],
+};
+
+/*
+  ...e que serviço o site oferece. Cada campo repete um dado que já está
+  publicado no site. Sem `offers`, `aggregateRating` ou `review`: o site não
+  publica preço nem avaliação, e dado estruturado não deve dizer mais do que a
+  página mostra.
+*/
+const jsonLdServico = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Desenvolvimento de sites',
+  provider: { '@type': 'Person', name: AUTOR.nome },
+  areaServed: AUTOR.pais,
+  description: SITE.descricao,
+};
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{tituloFinal}</title>
+    <meta name="description" content={descricao} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+
+    {/*
+      ICO para browser antigo e para quem pede /favicon.ico direto, SVG para o
+      resto, PNG para a tela inicial do iPhone.
+    */}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {/*
+      Open Graph: a prévia do link quando ele é compartilhado (WhatsApp,
+      LinkedIn). Largura e altura declaradas deixam o app montar o cartão sem
+      baixar a imagem antes.
+    */}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content={AUTOR.nomeCurto} />
+    <meta property="og:title" content={tituloFinal} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImagem} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content={`${AUTOR.nomeCurto}: faço sites para pequenos negócios e profissionais autônomos.`}
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={tituloFinal} />
+    <meta name="twitter:description" content={descricao} />
+    <meta name="twitter:image" content={ogImagem} />
+
+    {/* Fontes auto-hospedadas (configuradas em astro.config.mjs). */}
+    <Font cssVariable="--font-text" preload />
+    <Font cssVariable="--font-mono" preload={mono} />
+
+    <ClientRouter />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(jsonLdPessoa)}
+    />
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(jsonLdServico)}
+    />
+  </head>
+
+  <body>
+    {chuva && <Chuva />}
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    <main id="conteudo">
+      <slot />
+    </main>
+    <Rodape />
+    <Revelar />
+    <RolagemSuave />
+  </body>
+</html>

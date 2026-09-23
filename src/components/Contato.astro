@@ -1,0 +1,126 @@
+---
+import { AUTOR } from '../consts';
+import { linkWhatsApp } from '../lib/whatsapp';
+import CopiarEmail from './CopiarEmail.astro';
+import FormularioContato from './FormularioContato.astro';
+import LinkExterno from './LinkExterno.astro';
+import Icone from './Icone.astro';
+
+/*
+  Contato em duas camadas:
+  1. Dominante: WhatsApp e e-mail lado a lado, dois botões do mesmo tamanho.
+     Sem número de WhatsApp configurado, o de e-mail fica sozinho.
+  2. Abaixo e menor: o formulário, para quem prefere escrever com calma.
+*/
+const whatsapp = linkWhatsApp();
+---
+
+<section
+  id="contato"
+  class="veu"
+  aria-labelledby="contato-titulo"
+>
+  <div class="casca secao">
+    <h2 id="contato-titulo" data-revela>Contato</h2>
+
+    {/*
+      O `{' '}` é obrigatório: o compilador do Astro 7 descarta o espaço entre
+      uma expressão e o texto da linha seguinte, e sairia "e-mail.Me conte".
+    */}
+    <p class="abertura medida" data-revela style="--atraso: 80ms">
+      {
+        whatsapp
+          ? 'O caminho mais rápido é o WhatsApp.'
+          : 'O caminho mais rápido é o e-mail.'
+      }{' '}
+      Me conte o que o seu negócio faz e o que você precisa no site.
+    </p>
+
+    <div class="direto" data-revela>
+      <div class="canais">
+        {
+          whatsapp && (
+            <LinkExterno href={whatsapp} class="btn">
+              <Icone nome="whatsapp" />
+              Chamar no WhatsApp
+            </LinkExterno>
+          )
+        }
+        <a class="btn btn--fantasma" href={`mailto:${AUTOR.email}`}>
+          <Icone nome="email" />
+          Mandar e-mail
+        </a>
+      </div>
+      <CopiarEmail />
+    </div>
+
+    <div class="secundario vidro" data-revela>
+      <h3 id="form-titulo">Prefere escrever?</h3>
+      <p class="explica medida">A mensagem chega no meu e-mail.</p>
+      <FormularioContato />
+    </div>
+
+    {/* LinkedIn e GitHub ficam só no rodapé, logo abaixo, para não repetir. */}
+  </div>
+</section>
+
+<style>
+  section {
+    --veu: 0.78;
+  }
+
+  .abertura {
+    margin-top: var(--sp-s);
+    font-size: var(--step-1);
+  }
+
+  .direto {
+    margin-top: var(--sp-l);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-m);
+    padding-bottom: var(--sp-xl);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* As duas ações principais, com o mesmo peso. */
+  .canais {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-s);
+  }
+
+  /* Global porque o link do WhatsApp é renderizado dentro do LinkExterno. */
+  .canais > :global(.btn) {
+    font-size: var(--step-1);
+    min-height: 3.25rem;
+  }
+
+  /*
+    Card de vidro fosco (a classe `.vidro`). Título, explicação e campos ficam
+    dentro dele porque o texto secundário só tem contraste suficiente sobre o
+    vidro. Mais estreito que o bloco de cima, para ler como canal secundário.
+  */
+  .secundario {
+    margin-top: var(--sp-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-s);
+    max-width: 38rem;
+    padding: var(--sp-l);
+    border: 1px solid var(--linha-suave);
+    border-radius: var(--radius-card);
+  }
+
+  .secundario h3 {
+    font-size: var(--step-1);
+  }
+
+  .explica {
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+    margin-bottom: var(--sp-s);
+  }
+
+</style>

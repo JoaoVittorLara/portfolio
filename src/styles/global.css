@@ -1,0 +1,445 @@
+/* ============================================================
+   Tokens
+   Verde escuro de base (#184513) e branco esverdeado no texto.
+   ============================================================ */
+:root {
+  /*
+    Contraste medido (WCAG), todos sobre --bg:
+      --ink        9,14:1   título e texto principal
+      --ink-muted  4,89:1   texto secundário. Passa no AA com pouca folga,
+                            e é por isso que o texto principal não é ele
+      --erro       6,50:1
+  */
+  --bg: #184513;
+  --ink: #e3ece2;
+  --ink-muted: #9ab39a;
+
+  /* Linha fina como estrutura, no lugar de sombra. */
+  --rule: #9ab39a;
+
+  /*
+    Superfície (rodapé, campos, cards): MAIS ESCURA que o fundo, nunca mais
+    clara. O --ink-muted já está perto do limite; num verde um pouco mais claro
+    ele cai para 3,8:1, abaixo do AA. Aqui fica em 6,03:1.
+  */
+  --surface: #11350e;
+
+  /*
+    Ação é o preenchimento claro: botão #E3ECE2 com texto verde, 9,14:1. Link
+    tem a cor do texto; o sublinhado é o que diz que é link.
+  */
+  --action: var(--ink);
+
+  /*
+    Erro. Nunca é o único sinal: o campo também ganha texto, aria-invalid e
+    borda mais grossa, porque cor sozinha não comunica para todo mundo.
+  */
+  --erro: #ffb4a8;
+
+  /* Escala tipográfica, razão 1.25, fluida. */
+  --step--2: clamp(0.694rem, 0.672rem + 0.11vw, 0.75rem);
+  --step--1: clamp(0.833rem, 0.799rem + 0.17vw, 0.9rem);
+  --step-0: clamp(1rem, 0.955rem + 0.23vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.182rem + 0.34vw, 1.406rem);
+  --step-2: clamp(1.563rem, 1.458rem + 0.52vw, 1.802rem);
+  --step-3: clamp(1.953rem, 1.79rem + 0.81vw, 2.25rem);
+  --step-4: clamp(2.25rem, 1.7rem + 2.75vw, 3.5rem);
+
+  /* Espaço, base 4. */
+  --sp-2xs: 0.25rem;
+  --sp-xs: 0.5rem;
+  --sp-s: 0.75rem;
+  --sp-m: 1rem;
+  --sp-l: 1.5rem;
+  --sp-xl: 2.5rem;
+  --sp-2xl: 4rem;
+  --sp-section: clamp(3.5rem, 2.5rem + 5vw, 6rem);
+
+  /*
+    Três raios, proporcionais ao tamanho: 6px em botão, campo e imagem; 14px
+    em card; e no painel, que tem o tamanho de uma seção, o raio acompanha a
+    tela.
+  */
+  --radius: 6px;
+  --radius-card: 14px;
+  --radius-painel: clamp(1.25rem, 0.8rem + 2vw, 2rem);
+
+  /* Borda parada dos cards. Linha decorativa, sem mínimo de contraste. */
+  --linha-suave: rgb(154 179 154 / 0.28);
+
+  --measure: 65ch;
+  --toque: 44px; /* alvo de toque mínimo */
+
+  color-scheme: dark;
+}
+
+/*
+  Tema claro (painel dos projetos): fundo claro, texto verde. Screenshots
+  escuros perderiam a borda sobre o verde.
+
+  Contraste: --ink 9,14:1 e --ink-muted 6,11:1 sobre --bg; --ink-muted 5,53:1
+  sobre --surface.
+
+  --action é redeclarado de propósito: variável que aponta para outra é
+  resolvida onde foi declarada, então o --action herdado do :root continuaria
+  sendo o tom claro.
+*/
+.claro {
+  --bg: #e3ece2;
+  --surface: #d6e2d5;
+  --ink: #184513;
+  --ink-muted: #3b5e36;
+  --rule: #a9bfa8;
+  --action: var(--ink);
+  --erro: oklch(0.48 0.19 25);
+  color-scheme: light;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ============================================================
+   Reset mínimo
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.15;
+  text-wrap: balance;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--step-4);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: var(--step-3);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+h3 {
+  font-size: var(--step-2);
+}
+h4 {
+  font-size: var(--step-1);
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================================
+   Links e foco
+   Foco visível é requisito não negociável. Nunca outline: none.
+   ============================================================ */
+a {
+  color: var(--action);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+:where(a, button, input, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--action);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+/* ============================================================
+   Utilitários
+   ============================================================ */
+
+/* Esconde da tela sem tirar da árvore de acessibilidade.
+   Usar sempre no lugar de display:none quando o conteúdo é lido. */
+.vh {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Pula para o conteúdo, primeiro item do tab. */
+.pular {
+  position: absolute;
+  left: var(--sp-m);
+  top: var(--sp-m);
+  z-index: 10;
+  padding: var(--sp-s) var(--sp-m);
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-200%);
+}
+.pular:focus {
+  transform: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.medida {
+  max-width: var(--measure);
+}
+
+/* Casca de página. Coluna única, mobile-first a partir de 360px. */
+.casca {
+  width: 100%;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--sp-m);
+}
+
+@media (min-width: 40rem) {
+  .casca {
+    padding-inline: var(--sp-xl);
+  }
+}
+
+.secao {
+  padding-block: var(--sp-section);
+}
+
+/*
+  Painel com cantos arredondados sobre o verde. No celular sobra 0,5rem de
+  verde de cada lado; no desktop para em 62rem, a mesma largura de `.casca`.
+*/
+.painel {
+  border-radius: var(--radius-painel);
+  margin-inline: max(0.5rem, calc((100% - 62rem) / 2));
+}
+
+/*
+  Véu. A chuva é uma camada fixa atrás de tudo, e cada seção decide quanto
+  dela deixa passar com um verde translúcido por cima. Três zonas:
+  - as laterais, fora da coluna (só em tela larga): --lado
+  - as margens de cima e de baixo, sem texto: --veu-borda
+  - o miolo, onde fica o texto: --veu
+
+  Os valores são a opacidade que se vê de fato. A coluna (o ::before, recortado
+  por máscara) fica por cima das laterais, e duas camadas translúcidas somam
+  (1 - (1-a)(1-b)); a conta em --coluna-* desfaz essa soma.
+
+  O limite do miolo é o contraste do texto: o secundário (4,89:1) quase não tem
+  folga, o principal (9,14:1) aguenta mais. Seção só com texto principal pode
+  redeclarar --veu mais aberto.
+
+  A seção vai de ponta a ponta, com a .casca dentro, nunca na mesma tag: senão
+  o véu pararia na coluna de 62rem.
+*/
+.veu {
+  --lado: 0.5;
+  --veu: 0.94;
+  --veu-borda: 0.6;
+  --coluna-fecha: calc(1 - (1 - var(--veu)) / (1 - var(--lado)));
+  --coluna-abre: calc(1 - (1 - var(--veu-borda)) / (1 - var(--lado)));
+  position: relative;
+  isolation: isolate;
+  background: color-mix(in srgb, var(--bg) calc(var(--lado) * 100%), transparent);
+}
+
+.veu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg);
+  /* Vertical (abre nas margens, fecha no miolo) vezes horizontal (a coluna de
+     68rem, com 6rem de degradê nas bordas, para não aparecer uma quina). */
+  mask-image:
+    linear-gradient(
+      rgb(0 0 0 / var(--coluna-abre)),
+      rgb(0 0 0 / var(--coluna-fecha)) calc(var(--sp-section) * 0.75),
+      rgb(0 0 0 / var(--coluna-fecha)) calc(100% - var(--sp-section) * 0.75),
+      rgb(0 0 0 / var(--coluna-abre))
+    ),
+    linear-gradient(
+      to right,
+      transparent calc(50% - 40rem),
+      #000 calc(50% - 34rem),
+      #000 calc(50% + 34rem),
+      transparent calc(50% + 40rem)
+    );
+  mask-composite: intersect;
+}
+
+/*
+  Vidro fosco: a chuva continua atrás do card, borrada.
+
+  Dois níveis, por desempenho: `backdrop-filter` sobre um fundo animado é caro
+  (no celular, derrubava a animação para cerca de metade dos quadros). O blur só
+  existe em aparelho com mouse; no toque, o card é a superfície quase opaca,
+  sem blur. Sem blur, os pontos aparecem atrás do texto, então o card precisa
+  ser mais fechado (93%) do que com blur (82%) para manter o contraste.
+*/
+.vidro {
+  background: color-mix(in srgb, var(--surface) 93%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .vidro {
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+  }
+}
+
+/* Rótulo de metadado, na fonte do texto e sem caixa alta (mono em maiúscula
+   leria como algo técnico). */
+.rotulo {
+  font-size: var(--step--1);
+  color: var(--ink-muted);
+}
+
+/* ============================================================
+   Botão
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  min-height: var(--toque);
+  padding-inline: var(--sp-l);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--action);
+  border-radius: var(--radius);
+  background: var(--action);
+  color: var(--bg);
+}
+
+.btn--fantasma {
+  background: transparent;
+  color: var(--action);
+}
+
+.btn:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* ============================================================
+   Entrada ao rolar
+   Todo [data-revela] nasce um pouco abaixo e transparente, e sobe
+   quando Revelar.astro adiciona .revelado.
+
+   Só começa escondido com `scripting: enabled` e sem movimento
+   reduzido: o conteúdo nunca depende de JavaScript para aparecer.
+
+   --atraso escalona blocos vizinhos (style="--atraso: 120ms").
+   ============================================================ */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-revela] {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--atraso, 0ms),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--atraso, 0ms);
+  }
+
+  [data-revela].revelado {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Rolagem com inércia
+   As regras que a Lenis pede (lenis/dist/lenis.css), sem as de
+   iframe e auto-toggle, que o site não usa. A classe .lenis só
+   existe com a instância ativa (nunca com movimento reduzido).
+   ============================================================ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+/* Área que rola por dentro (a mensagem do formulário) marca data-lenis-prevent:
+   a roda rola a área, e não a página. */
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* A seção que recebe o foco depois de um salto de âncora não é um controle, só
+   marca de onde o Tab continua. Sem contorno. */
+[data-foco-ancora]:focus {
+  outline: none;
+}
+
+/* ============================================================
+   Movimento reduzido
+   Rede de segurança para animações e transições em CSS. As que
+   rodam por JavaScript checam `prefers-reduced-motion` no próprio
+   script, porque não obedecem a esta regra.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

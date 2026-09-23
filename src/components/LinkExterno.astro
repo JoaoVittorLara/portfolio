@@ -1,0 +1,17 @@
+---
+/**
+ * Link que sai do site, em aba nova para o site continuar aberto atrás.
+ * Centraliza o que é fácil esquecer: `rel="noopener"` e o aviso de nova aba
+ * para leitor de tela.
+ */
+interface Props {
+  href: string;
+  class?: string;
+}
+
+const { href, class: classe } = Astro.props;
+---
+
+<a href={href} target="_blank" rel="noopener" class={classe}>
+  <slot /><span class="vh"> (abre em nova aba)</span>
+</a>

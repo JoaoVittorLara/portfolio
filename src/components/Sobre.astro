@@ -1,0 +1,45 @@
+---
+import { AUTOR } from '../consts';
+---
+
+<section id="sobre" class="veu" aria-labelledby="sobre-titulo">
+  <div class="casca secao">
+  <h2 id="sobre-titulo" data-revela>Sobre</h2>
+
+  <div class="texto medida" data-revela style="--atraso: 100ms">
+    <p>
+      Sou de {AUTOR.cidade}. Terminei o Ensino Médio técnico em Desenvolvimento
+      de Sistemas em 2024 e estou em Ciência da Computação, com formatura
+      prevista para 2028.
+    </p>
+
+    <p>
+      Os três projetos aqui em cima são conceituais. Não são trabalho pago, e eu
+      prefiro dizer isso a inflar. O que eles têm de real é o processo. No
+      MovePrime, cheguei a apagar código inteiro e reescrever do zero, para o
+      site não carregar nada de que não precisasse.
+    </p>
+
+    <p>
+      Na Barbearia Elliot, antes de decidir como o agendamento ia funcionar, fui
+      ver como barbearias do Paraná resolvem isso de verdade. Com o seu negócio
+      faço o mesmo: primeiro entendo como o seu cliente decide, depois escolho
+      cor e fonte.
+    </p>
+  </div>
+  </div>
+</section>
+
+<style>
+  /* Só texto principal aqui (mais contraste), então o véu pode ser mais aberto. */
+  section {
+    --veu: 0.72;
+  }
+
+  .texto {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-m);
+    margin-top: var(--sp-m);
+  }
+</style>

@@ -1,0 +1,175 @@
+---
+import Base from '../layouts/Base.astro';
+import { AUTOR, RETENCAO_DIAS } from '../consts';
+import LinkExterno from '../components/LinkExterno.astro';
+import { linkWhatsApp } from '../lib/whatsapp';
+
+/*
+  Política de privacidade (LGPD), estática, sem JavaScript, proporcional a um
+  site que coleta três campos num formulário.
+
+  Sem banner de cookie porque o site não usa cookie. A afirmação de que não há
+  rastreamento depende das fontes auto-hospedadas: nenhum request de terceiro
+  além do envio do formulário ao Web3Forms.
+*/
+
+/*
+  Data da última mudança de conteúdo. A seção do WhatsApp depende do número em
+  consts.ts: se ele mudar, esta data muda junto.
+*/
+const atualizado = '17 de setembro de 2026';
+const whatsapp = linkWhatsApp();
+---
+
+<Base
+  titulo="Política de privacidade"
+  descricao="Que dados o formulário de contato coleta, para quê, por quanto tempo, e como pedir exclusão."
+  caminho="/privacidade/"
+  chuva={false}
+>
+  <article class="pagina casca">
+    <p class="rotulo">Atualizada em {atualizado}</p>
+    <h1>Política de privacidade</h1>
+
+    <p class="resumo medida">
+      Este site é um portfólio pessoal. Ele não usa cookies, não tem analytics e
+      não rastreia ninguém. A única coisa que ele coleta é o que você digitar no
+      formulário de contato, se decidir usá-lo.
+    </p>
+
+    <section aria-labelledby="controlador">
+      <h2 id="controlador">Quem é o controlador</h2>
+      <p>
+        {AUTOR.nome}, {AUTOR.cidade}, {AUTOR.estado}. Contato pelo e-mail
+        <a href={`mailto:${AUTOR.email}`} class="mono">{AUTOR.email}</a>.
+      </p>
+    </section>
+
+    <section aria-labelledby="dados">
+      <h2 id="dados">Que dados são coletados</h2>
+      <p>
+        Apenas os três campos do formulário de contato: <b>nome</b>,
+        <b>e-mail</b> e <b>mensagem</b>. Nada além disso. Não há cadastro, não
+        há login, e não existe nenhum outro formulário no site.
+      </p>
+    </section>
+
+    <section aria-labelledby="finalidade">
+      <h2 id="finalidade">Para que servem</h2>
+      <p>
+        Para eu responder ao seu contato. Só isso. Os dados não são vendidos,
+        não são compartilhados com terceiros para publicidade, e não alimentam
+        nenhuma lista de e-mail.
+      </p>
+    </section>
+
+    <section aria-labelledby="base-legal">
+      <h2 id="base-legal">Base legal</h2>
+      <p>
+        Consentimento, dado no momento em que você envia o formulário. Se
+        preferir não consentir, o endereço de e-mail acima está aberto e faz o
+        mesmo trabalho.
+      </p>
+    </section>
+
+    <section aria-labelledby="operador">
+      <h2 id="operador">Quem processa o envio</h2>
+      <p>
+        O formulário usa o <LinkExterno href="https://web3forms.com/"
+          >Web3Forms</LinkExterno
+        >, que recebe a mensagem e encaminha para o meu e-mail. O site é
+        estático e não tem servidor próprio, então nada fica armazenado aqui.
+        A política de privacidade deles está em
+        <LinkExterno href="https://web3forms.com/privacy"
+          >web3forms.com/privacy</LinkExterno
+        >.
+      </p>
+    </section>
+
+    {
+      whatsapp && (
+        <section aria-labelledby="whatsapp">
+          <h2 id="whatsapp">Se você falar comigo pelo WhatsApp</h2>
+          <p>
+            O botão de WhatsApp é só um link: ele abre o aplicativo com uma
+            mensagem já escrita, e o site não registra nada nesse clique. A
+            conversa acontece dentro do WhatsApp e segue a{' '}
+            <LinkExterno href="https://www.whatsapp.com/legal/privacy-policy">política de privacidade dele</LinkExterno>.
+          </p>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="retencao">
+      <h2 id="retencao">Por quanto tempo ficam guardados</h2>
+      <p>
+        <b>{RETENCAO_DIAS} dias.</b> Depois disso eu apago o e-mail com a sua
+        mensagem da minha caixa.
+      </p>
+    </section>
+
+    <section aria-labelledby="direitos">
+      <h2 id="direitos">Seus direitos</h2>
+      <p>
+        A LGPD garante que você peça acesso, correção ou exclusão dos seus
+        dados, entre outros direitos. Para exercer qualquer um deles, escreva
+        para <a href={`mailto:${AUTOR.email}`} class="mono">{AUTOR.email}</a>.
+        É o mesmo endereço do resto do site, e eu respondo.
+      </p>
+    </section>
+
+    <section aria-labelledby="rastreamento">
+      <h2 id="rastreamento">Cookies e rastreamento</h2>
+      <p>
+        O site <b>não usa cookies</b>, não tem analytics, não tem pixel de rede
+        social e não carrega fonte de CDN de terceiro. As duas tipografias são
+        servidas do próprio domínio justamente para o seu IP não ser entregue a
+        ninguém. Fora o envio do formulário, quando você o usa, o site não faz
+        nenhuma requisição para fora.
+      </p>
+      <p>
+        Se um dia eu adicionar alguma medição de audiência, esta página muda no
+        mesmo dia.
+      </p>
+    </section>
+
+    <p class="voltar">
+      <a href="/">Voltar para a página inicial</a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  .pagina {
+    padding-block: var(--sp-section);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-l);
+  }
+
+  .resumo {
+    font-size: var(--step-1);
+    color: var(--ink-muted);
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-s);
+    max-width: var(--measure);
+    padding-top: var(--sp-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  b {
+    font-weight: 700;
+  }
+
+  .voltar {
+    font-size: var(--step--1);
+  }
+</style>

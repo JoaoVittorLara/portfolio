@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+
+/*
+  Página de erro direta: um título claro e dois caminhos de volta (projetos e
+  contato), sem ilustração nem piada.
+
+  A Vercel serve o `404.html` da raiz com status 404 para qualquer caminho
+  inexistente. O `noindex` garante que a página não seja indexada mesmo que
+  esse status falhe por algum erro de configuração.
+*/
+---
+
+<Base
+  titulo="Página não encontrada"
+  descricao="Esta página não existe. Os caminhos para os projetos e para o contato estão aqui."
+  caminho="/404/"
+  chuva={false}
+  noindex
+>
+  <section class="erro casca" aria-labelledby="erro-titulo">
+    <p class="rotulo">Erro 404</p>
+    <h1 id="erro-titulo">Esta página não existe</h1>
+
+    <p class="texto medida">
+      O endereço que você abriu não corresponde a nada aqui. Pode ser um link
+      antigo, ou um erro de digitação.
+    </p>
+
+    <p class="acoes">
+      <a class="btn" href="/#projetos">Ver os projetos</a>
+      <a class="btn btn--fantasma" href="/#contato">Falar comigo</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .erro {
+    padding-block: var(--sp-section);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-m);
+  }
+
+  .texto {
+    font-size: var(--step-1);
+    color: var(--ink-muted);
+  }
+
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-s);
+    margin-top: var(--sp-s);
+  }
+</style>

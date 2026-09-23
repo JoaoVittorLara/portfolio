@@ -1,0 +1,169 @@
+---
+import { formatarKb, formatarSegundos } from '../lib/medicao';
+
+/*
+  Peso, JavaScript próprio e tempo de carregamento de um projeto, dentro do
+  card dele em /projetos/.
+
+  Os números contam do zero ao entrar na tela, mas o valor final já vem no
+  HTML: sem JavaScript ou com movimento reduzido, o número certo aparece
+  parado.
+*/
+interface Props {
+  pesoKb: number;
+  pesoAproximado?: boolean;
+  jsKb: number;
+  loadS: number;
+  /** Ressalva sobre a medida de um projeto, abaixo dos números. */
+  nota?: string;
+}
+
+const { pesoKb, pesoAproximado = false, jsKb, loadS, nota } = Astro.props;
+---
+
+<div class="metricas">
+  <dl class="numeros">
+    <div class="item">
+      <dt>Peso</dt>
+      <dd
+        class="mono"
+        data-tipo="kb"
+        data-contagem
+        data-valor={pesoKb}
+        {...(pesoAproximado ? { 'data-aproximado': '' } : {})}
+      >
+        {formatarKb(pesoKb, pesoAproximado)}
+      </dd>
+    </div>
+    <div class="item">
+      <dt>JS próprio</dt>
+      <dd class="mono" data-tipo="kb" data-contagem data-valor={jsKb}>
+        {formatarKb(jsKb)}
+      </dd>
+    </div>
+    <div class="item">
+      <dt>Load</dt>
+      <dd class="mono" data-tipo="s" data-contagem data-valor={loadS}>
+        {formatarSegundos(loadS)}
+      </dd>
+    </div>
+  </dl>
+
+  {nota && <p class="nota">{nota}</p>}
+</div>
+
+<style>
+  .metricas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-s);
+    margin-top: var(--sp-xs);
+  }
+
+  .numeros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-m) var(--sp-l);
+    padding-top: var(--sp-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  dt {
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--step-0);
+    font-weight: 700;
+  }
+
+  .nota {
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    max-width: 62ch;
+  }
+</style>
+
+<script>
+  /*
+    `formatarKb` e `formatarSegundos` repetem as de `lib/medicao.ts` de
+    propósito: aquele arquivo roda no build, e este script roda no navegador.
+    Manter uma cópia aqui evita que uma dependência de build entre no bundle do
+    cliente sem ninguém perceber.
+
+    O Astro inclui este script uma vez só, mesmo com três cards na página.
+  */
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const DURACAO_MS = 800;
+
+  const formatarKb = (v: number, aproximado: boolean) => {
+    const casas = v < 100 ? 1 : 0;
+    const n = v.toLocaleString('pt-BR', {
+      minimumFractionDigits: casas,
+      maximumFractionDigits: casas,
+    });
+    return `${aproximado ? '~' : ''}${n} KB`;
+  };
+
+  const formatarSegundos = (v: number) =>
+    `${v.toLocaleString('pt-BR', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })} s`;
+
+  const contar = (el: HTMLElement) => {
+    const valor = Number(el.dataset.valor);
+    if (!Number.isFinite(valor)) return;
+
+    const aproximado = el.dataset.aproximado !== undefined;
+    const formatar = (v: number) =>
+      el.dataset.tipo === 's' ? formatarSegundos(v) : formatarKb(v, aproximado);
+
+    const t0 = performance.now();
+    const passo = (agora: number) => {
+      const p = Math.min(1, (agora - t0) / DURACAO_MS);
+      const suavizado = 1 - (1 - p) ** 3;
+      el.textContent = formatar(valor * suavizado);
+      if (p < 1) requestAnimationFrame(passo);
+      // O passo final usa o valor exato, sem o arredondamento acumulado do
+      // easing, para bater com o que o servidor já tinha escrito.
+      else el.textContent = formatar(valor);
+    };
+    requestAnimationFrame(passo);
+  };
+
+  document.addEventListener('astro:page-load', () => {
+    if (calmo.matches || !('IntersectionObserver' in window)) return;
+
+    const alvos = document.querySelectorAll<HTMLElement>(
+      '[data-contagem]:not([data-iniciado])',
+    );
+    if (alvos.length === 0) return;
+
+    const observador = new IntersectionObserver(
+      (entradas, esteObservador) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          contar(entrada.target as HTMLElement);
+          esteObservador.unobserve(entrada.target);
+        }
+      },
+      { threshold: 0.4 },
+    );
+
+    for (const alvo of alvos) {
+      alvo.dataset.iniciado = '';
+      observador.observe(alvo);
+    }
+  });
+</script>
