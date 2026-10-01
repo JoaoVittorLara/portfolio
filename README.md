@@ -14,8 +14,12 @@ o meu próprio site: **[joaovittorlara.vercel.app](https://joaovittorlara.vercel
 
 ## Sobre o site
 
-Página de apresentação, agendamento online e contato pelo WhatsApp, pensados
-primeiro para o celular. Sou de Curitiba e atendo online.
+É a minha vitrine: o que eu faço, três projetos de demonstração, as ferramentas
+que uso, a minha formação e as formas de falar comigo (WhatsApp, e-mail ou
+formulário). Foi pensado primeiro para o celular. Sou de Curitiba e atendo online.
+
+O que eu entrego a quem me contrata: página de apresentação, agendamento online
+e contato pelo WhatsApp.
 
 O site tem quatro páginas:
 
@@ -42,7 +46,7 @@ O site tem quatro páginas:
 - **Vídeo sob demanda.** O vídeo de cada projeto só é baixado quando aparece na
   tela. Antes disso, a imagem otimizada ocupa o lugar.
 - **SEO no build.** Título, descrição e Open Graph por página, dados
-  estruturados (`Person` e `Service`), `sitemap.xml` e `robots.txt`.
+  estruturados (`Person` e `Service`), sitemap e `robots.txt`.
 
 ## Projetos
 
@@ -58,6 +62,7 @@ para mostrar como eu trabalho.
 ## Estrutura
 
 ```text
+public/                  # favicons e a imagem de prévia do link (og.png)
 src/
 ├── consts.ts            # dados que aparecem em mais de um lugar (URL, contato, formação)
 ├── content.config.ts    # formato de cada projeto
@@ -66,7 +71,7 @@ src/
 ├── layouts/Base.astro   # <head>, SEO, Open Graph, dados estruturados
 ├── pages/               # início, projetos, privacidade, 404 e robots.txt
 ├── components/          # cada parte da página em um componente
-├── assets/              # imagens e vídeos, otimizados no build
+├── assets/              # imagens (otimizadas no build) e os vídeos dos projetos
 └── styles/global.css    # cores, espaçamentos e tipografia
 ```
 
@@ -82,9 +87,10 @@ npm run build          # gera o site em ./dist
 npm run preview        # abre o build localmente
 ```
 
-A chave do Web3Forms é pública por desenho: ela vai para o HTML do formulário.
-Fica fora do código por organização, não por segurança. A proteção é restringir
-o domínio no painel do Web3Forms.
+A chave do Web3Forms é pública por desenho: ela vai para o HTML do formulário, e
+quem a copiar só consegue enviar e-mails para o dono dela. Fica fora do código
+por organização, não por segurança. Contra spam, o formulário tem um honeypot e
+o Web3Forms filtra os envios.
 
 ## Contato
 

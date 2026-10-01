@@ -8,9 +8,9 @@ import Icone from './Icone.astro';
 
   A chave vem do .env (`env.schema` no astro.config.mjs). Ela é pública por
   desenho: o envio sai do navegador, então o valor aparece no campo oculto
-  abaixo. Fora do código por organização, não para esconder; quem protege
-  contra abuso é o domínio permitido no painel do Web3Forms, o rate limit
-  deles e o honeypot.
+  abaixo. Fora do código por organização, não para esconder: quem copiar a
+  chave só consegue enviar e-mails ao dono dela. Contra spam há o honeypot
+  abaixo e o filtro do próprio Web3Forms.
 
   A validação nativa do navegador continua ligada (sem `novalidate`); o script
   só troca as mensagens por versões em português.

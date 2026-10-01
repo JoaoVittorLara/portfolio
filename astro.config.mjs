@@ -29,8 +29,8 @@ export default defineConfig({
   env: {
     schema: {
       // Pública de propósito: a chave do Web3Forms vai para o HTML do
-      // formulário. Ficar fora do código é organização, não segurança; a
-      // proteção é o domínio permitido no painel do Web3Forms.
+      // formulário. Ficar fora do código é organização, não segurança: quem
+      // copiar a chave só consegue enviar e-mails ao dono dela.
       PUBLIC_WEB3FORMS_KEY: envField.string({ context: 'client', access: 'public' }),
     },
   },
