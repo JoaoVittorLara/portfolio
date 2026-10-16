@@ -14,10 +14,9 @@ stack:
   - Tailwind v4
 demo: https://barbearia-elliot.vercel.app/
 repo: https://github.com/JoaoVittorLara/barbearia-elliot
-pesoKb: 700
-pesoAproximado: true
-jsKb: 101
-loadS: 4.7
+pesoKb: 591.2
+jsKb: 105.2
+loadS: 0.6
 desafio: >-
   A ideia original era pôr o iframe do Cal.com no fim da landing. Dois problemas
   apareceram: o cliente só descobriria o preço ao chegar na barbearia, porque o

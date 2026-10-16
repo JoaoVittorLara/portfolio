@@ -14,11 +14,9 @@ interface Props {
   pesoAproximado?: boolean;
   jsKb: number;
   loadS: number;
-  /** Ressalva sobre a medida de um projeto, abaixo dos números. */
-  nota?: string;
 }
 
-const { pesoKb, pesoAproximado = false, jsKb, loadS, nota } = Astro.props;
+const { pesoKb, pesoAproximado = false, jsKb, loadS } = Astro.props;
 ---
 
 <div class="metricas">
@@ -48,8 +46,6 @@ const { pesoKb, pesoAproximado = false, jsKb, loadS, nota } = Astro.props;
       </dd>
     </div>
   </dl>
-
-  {nota && <p class="nota">{nota}</p>}
 </div>
 
 <style>
@@ -85,12 +81,6 @@ const { pesoKb, pesoAproximado = false, jsKb, loadS, nota } = Astro.props;
     margin: 0;
     font-size: var(--step-0);
     font-weight: 700;
-  }
-
-  .nota {
-    font-size: var(--step--2);
-    color: var(--ink-muted);
-    max-width: 62ch;
   }
 </style>
 

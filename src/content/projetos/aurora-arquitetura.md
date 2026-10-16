@@ -13,9 +13,9 @@ stack:
   - Tailwind
 demo: https://aurora-arquitetura.vercel.app/
 repo: https://github.com/JoaoVittorLara/aurora-arquitetura
-pesoKb: 538.6
+pesoKb: 593.4
 jsKb: 1.0
-loadS: 1.0
+loadS: 0.5
 desafio: >-
   Primeira vez montando várias páginas e integrando o Web3Forms nessa stack. Eu
   já tinha conhecimento prévio de Vite e TypeScript, então peguei o jeito rápido,
@@ -28,8 +28,9 @@ duracaoSemanas: 3
 ordem: 3
 ---
 
-**1,0 KB de JavaScript próprio.** É o site mais pesado dos três em bytes, 538,6 KB,
-e mesmo assim carrega em 1,0 segundo: o peso são quatro imagens que carregam
-preguiçosamente e não seguram a página. Peso alto não é o mesmo que lentidão.
+**1,0 KB de JavaScript próprio.** Junto com o Elliot, é o mais pesado dos três em
+bytes, 593,4 KB, e mesmo assim carrega em 0,5 segundo. Quase todo o peso são
+quatro fotos de um serviço de imagens (498 KB): uma no topo e três com
+carregamento preguiçoso. Peso alto não é o mesmo que lentidão.
 
 O formulário usa Web3Forms, então o site continua estático e sem backend.

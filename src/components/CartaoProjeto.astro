@@ -40,12 +40,6 @@ const whatsapp = linkWhatsApp(
 );
 
 const tituloId = `cartao-${projeto.id}`;
-
-// Ressalva temporária de um projeto só: não vale um campo novo no schema.
-const notaMedicao =
-  projeto.id === 'barbearia-elliot'
-    ? 'O iframe do Google Maps responde por cerca de 600 KB. Estou trocando por imagem estática mais link, o mesmo padrão que já apliquei ao Cal.com neste projeto.'
-    : undefined;
 ---
 
 {/*
@@ -138,7 +132,6 @@ const notaMedicao =
         pesoAproximado={d.pesoAproximado}
         jsKb={d.jsKb}
         loadS={d.loadS}
-        nota={notaMedicao}
       />
     </section>
 
